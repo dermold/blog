@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/utils';
+---
+
+<BaseLayout title="Seite nicht gefunden">
+  <div class="container narrow box">
+    <p class="big" aria-hidden="true">404</p>
+    <h1>Hier ist leider nichts.</h1>
+    <p>Diese Seite gibt es nicht (mehr). Vielleicht findest du über die Suche, was du suchst.</p>
+    <p class="actions">
+      <a class="button" href={url('')}>Zur Startseite</a>
+      <a class="button ghost" href={url('suche/')}>Zur Suche</a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .box {
+    padding-block: 5rem;
+    text-align: center;
+  }
+  .big {
+    margin: 0;
+    font-size: clamp(5rem, 20vw, 9rem);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--accent);
+    transform: rotate(-4deg);
+  }
+  .actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+</style>

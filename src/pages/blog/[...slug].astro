@@ -1,0 +1,173 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { CATEGORIES } from '../../consts';
+import { formatDate, getPosts, readingTime, slugify, url, type Post } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, index) => ({
+    params: { slug: post.id },
+    props: { post, newer: posts[index - 1], older: posts[index + 1] },
+  }));
+}
+
+interface Props {
+  post: Post;
+  newer?: Post;
+  older?: Post;
+}
+
+const { post, newer, older } = Astro.props;
+const { Content } = await render(post);
+const category = CATEGORIES[post.data.category];
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article class="container narrow">
+    <header class="post-head">
+      <a class="back" href={url('blog/')}>← Alle Beiträge</a>
+      <a class="chip" href={url(`kategorien/${post.data.category}/`)}>
+        <span aria-hidden="true">{category.emoji}</span>
+        {category.name}
+      </a>
+      <h1>{post.data.title}</h1>
+      <p class="description">{post.data.description}</p>
+      <p class="meta">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{readingTime(post.body)} Min. Lesezeit</span>
+        {
+          post.data.updated && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>aktualisiert am {formatDate(post.data.updated)}</span>
+            </>
+          )
+        }
+      </p>
+      {post.data.draft && <p class="draft">Entwurf – nur lokal sichtbar</p>}
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {
+      post.data.tags.length > 0 && (
+        <footer class="tags">
+          <h2 class="visually-hidden">Tags</h2>
+          <ul class="chip-list">
+            {post.data.tags.map((tag) => (
+              <li>
+                <a class="chip" href={url(`tags/${slugify(tag)}/`)}>
+                  #{tag}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </footer>
+      )
+    }
+
+    <nav class="pager" aria-label="Weitere Beiträge">
+      {
+        older ? (
+          <a class="pager-link" href={url(`blog/${older.id}/`)}>
+            <span>← Älter</span>
+            <strong>{older.data.title}</strong>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        newer && (
+          <a class="pager-link next" href={url(`blog/${newer.id}/`)}>
+            <span>Neuer →</span>
+            <strong>{newer.data.title}</strong>
+          </a>
+        )
+      }
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .post-head {
+    padding-block: 2.5rem 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .back {
+    display: block;
+    width: fit-content;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 900;
+    margin: 1rem 0 0.75rem;
+  }
+  .description {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .draft {
+    display: inline-block;
+    margin: 1rem 0 0;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    background: #fde68a;
+    color: #713f12;
+    font-weight: 800;
+    font-size: 0.85rem;
+  }
+  .tags {
+    margin-top: 3rem;
+  }
+  .pager {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .pager-link {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .pager-link:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .pager-link span {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .next {
+    text-align: right;
+  }
+</style>

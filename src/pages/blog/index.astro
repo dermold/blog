@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { CATEGORIES, type CategoryKey } from '../../consts';
+import { getPosts, url } from '../../lib/utils';
+
+const posts = await getPosts();
+
+// Beiträge nach Jahr gruppieren
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.date.getFullYear();
+  byYear.set(year, [...(byYear.get(year) ?? []), post]);
+}
+---
+
+<BaseLayout title="Blog" description="Alle Beiträge im Überblick.">
+  <div class="container">
+    <header class="page-head">
+      <span class="eyebrow">Blog</span>
+      <h1>Alle Beiträge</h1>
+      <p>{posts.length} {posts.length === 1 ? 'Beitrag' : 'Beiträge'} bisher.</p>
+    </header>
+
+    <nav aria-label="Nach Kategorie filtern" class="filter">
+      <ul class="chip-list">
+        <li><a class="chip is-active" href={url('blog/')} aria-current="page">Alle</a></li>
+        {
+          (Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[CategoryKey]][]).map(([key, cat]) => (
+            <li>
+              <a class="chip" href={url(`kategorien/${key}/`)}>
+                <span aria-hidden="true">{cat.emoji}</span> {cat.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    {
+      posts.length === 0 ? (
+        <p class="empty">Noch keine Beiträge.</p>
+      ) : (
+        [...byYear.entries()].map(([year, list]) => (
+          <section class="year">
+            <h2>{year}</h2>
+            <ul class="post-grid">
+              {list.map((post) => (
+                <li>
+                  <PostCard post={post} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .filter {
+    margin-bottom: 2rem;
+  }
+  .year {
+    margin-bottom: 2.5rem;
+  }
+  .year h2 {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { collectTags, getPosts, url } from '../../lib/utils';
+
+const tags = collectTags(await getPosts());
+---
+
+<BaseLayout title="Tags" description="Alle Schlagwörter des Blogs.">
+  <div class="container">
+    <header class="page-head">
+      <span class="eyebrow">Tags</span>
+      <h1>Alle Schlagwörter</h1>
+      <p>Beiträge nach Themen entdecken.</p>
+    </header>
+    {
+      tags.length > 0 ? (
+        <ul class="chip-list tags">
+          {tags.map((tag) => (
+            <li>
+              <a class="chip" href={url(`tags/${tag.slug}/`)}>
+                #{tag.name} <span class="count">{tag.count}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">Noch keine Tags vergeben.</p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .tags .chip {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+  }
+  .count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: 0.35rem;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+</style>

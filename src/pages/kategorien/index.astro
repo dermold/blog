@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { CATEGORIES, type CategoryKey } from '../../consts';
+import { getPosts, url } from '../../lib/utils';
+
+const posts = await getPosts();
+const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[CategoryKey]][];
+---
+
+<BaseLayout title="Kategorien" description="Alle Kategorien des Blogs.">
+  <div class="container">
+    <header class="page-head">
+      <span class="eyebrow">Kategorien</span>
+      <h1>Worüber ich schreibe</h1>
+    </header>
+    <ul class="list">
+      {
+        entries.map(([key, cat]) => {
+          const count = posts.filter((p) => p.data.category === key).length;
+          return (
+            <li>
+              <a href={url(`kategorien/${key}/`)}>
+                <span class="emoji" aria-hidden="true">{cat.emoji}</span>
+                <span>
+                  <strong>{cat.name}</strong>
+                  <span class="desc">{cat.description}</span>
+                </span>
+                <span class="count">{count}</span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .list {
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    color: var(--text);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  a:hover {
+    color: var(--text);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+  }
+  .emoji {
+    font-size: 2.25rem;
+  }
+  strong {
+    display: block;
+    font-size: 1.3rem;
+  }
+  .desc {
+    color: var(--text-muted);
+  }
+  .count {
+    display: grid;
+    place-items: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding-inline: 0.5rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-weight: 900;
+  }
+</style>

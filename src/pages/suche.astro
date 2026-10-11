@@ -1,0 +1,181 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/utils';
+---
+
+<BaseLayout title="Suche" description="Beiträge durchsuchen.">
+  <div class="container narrow">
+    <header class="page-head">
+      <span class="eyebrow">Suche</span>
+      <h1>Was suchst du?</h1>
+    </header>
+
+    <form class="search" role="search" data-index={url('search.json')} onsubmit="return false">
+      <label for="q" class="visually-hidden">Suchbegriff</label>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input id="q" name="q" type="search" placeholder="Titel, Thema, Tag …" autocomplete="off" autofocus />
+    </form>
+
+    <p class="status" aria-live="polite"></p>
+    <ul class="results"></ul>
+  </div>
+</BaseLayout>
+
+<script>
+  type Entry = {
+    title: string;
+    description: string;
+    url: string;
+    date: string;
+    category: string;
+    tags: string[];
+    text: string;
+  };
+
+  const form = document.querySelector<HTMLFormElement>('.search')!;
+  const input = document.querySelector<HTMLInputElement>('#q')!;
+  const status = document.querySelector<HTMLParagraphElement>('.status')!;
+  const list = document.querySelector<HTMLUListElement>('.results')!;
+
+  let entries: Entry[] = [];
+
+  const normalize = (s: string) =>
+    s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
+
+  const escape = (s: string) =>
+    s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
+  function score(entry: Entry, words: string[]): number {
+    const title = normalize(entry.title);
+    const meta = normalize([entry.description, entry.category, ...entry.tags].join(' '));
+    const text = normalize(entry.text);
+    let total = 0;
+    for (const word of words) {
+      if (title.includes(word)) total += 10;
+      else if (meta.includes(word)) total += 5;
+      else if (text.includes(word)) total += 1;
+      else return 0; // jedes Wort muss vorkommen
+    }
+    return total;
+  }
+
+  function render() {
+    const query = input.value.trim();
+    const params = new URLSearchParams(location.search);
+    if (query) params.set('q', query);
+    else params.delete('q');
+    history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}`);
+
+    if (!query) {
+      status.textContent = `${entries.length} Beiträge durchsuchbar.`;
+      list.innerHTML = '';
+      return;
+    }
+    const words = normalize(query).split(/\s+/).filter(Boolean);
+    const hits = entries
+      .map((entry) => ({ entry, s: score(entry, words) }))
+      .filter((h) => h.s > 0)
+      .sort((a, b) => b.s - a.s);
+
+    status.textContent = hits.length === 0 ? 'Leider nichts gefunden.' : `${hits.length} ${hits.length === 1 ? 'Treffer' : 'Treffer'}`;
+    list.innerHTML = hits
+      .map(
+        ({ entry }) => `
+        <li>
+          <a href="${entry.url}">
+            <span class="r-meta">${escape(entry.category)} · ${escape(entry.date)}</span>
+            <strong>${escape(entry.title)}</strong>
+            <span class="r-desc">${escape(entry.description)}</span>
+          </a>
+        </li>`,
+      )
+      .join('');
+  }
+
+  fetch(form.dataset.index!)
+    .then((r) => r.json())
+    .then((data: Entry[]) => {
+      entries = data;
+      input.value = new URLSearchParams(location.search).get('q') ?? '';
+      render();
+    })
+    .catch(() => {
+      status.textContent = 'Die Suche konnte nicht geladen werden.';
+    });
+
+  input.addEventListener('input', render);
+</script>
+
+<style>
+  .search {
+    position: relative;
+  }
+  .search svg {
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    width: 1.3rem;
+    height: 1.3rem;
+    transform: translateY(-50%);
+    fill: none;
+    stroke: var(--text-muted);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+  input {
+    width: 100%;
+    padding: 1rem 1.25rem 1rem 3.2rem;
+    border-radius: 999px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 1.1rem;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s ease;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .status {
+    color: var(--text-muted);
+    font-weight: 700;
+    margin: 1.25rem 0;
+  }
+  .results {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  .results :global(a) {
+    display: grid;
+    gap: 0.2rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .results :global(a:hover) {
+    border-color: var(--accent);
+    transform: translateX(4px);
+    color: var(--text);
+  }
+  .results :global(.r-meta) {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .results :global(strong) {
+    font-size: 1.15rem;
+  }
+  .results :global(.r-desc) {
+    color: var(--text-muted);
+  }
+</style>

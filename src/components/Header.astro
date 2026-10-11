@@ -1,0 +1,221 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { SITE_TITLE } from '../consts';
+import { url } from '../lib/utils';
+
+const links = [
+  { href: url(''), label: 'Start' },
+  { href: url('blog/'), label: 'Blog' },
+  { href: url('kategorien/'), label: 'Kategorien' },
+  { href: url('tags/'), label: 'Tags' },
+  { href: url('ueber-mich/'), label: 'Über mich' },
+];
+
+// Markiert den aktuellen Menüpunkt.
+const path = Astro.url.pathname.replace(/\/?$/, '/');
+const isActive = (href: string) => {
+  const target = href.replace(/\/?$/, '/');
+  return target === url('').replace(/\/?$/, '/') ? path === target : path.startsWith(target);
+};
+---
+
+<header class="site-header">
+  <div class="container inner">
+    <a class="logo" href={url('')}>
+      <span class="logo-mark" aria-hidden="true">S</span>
+      <span class="logo-text">{SITE_TITLE}</span>
+    </a>
+
+    <div class="actions">
+      <a class="icon-button" href={url('suche/')} aria-label="Suche" title="Suche">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      </a>
+      <ThemeToggle />
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="hauptmenue" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <nav id="hauptmenue" class="nav" aria-label="Hauptmenü">
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} aria-current={isActive(link.href) ? 'page' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('.menu-button');
+  const nav = document.getElementById('hauptmenue');
+  button?.addEventListener('click', () => {
+    const open = button.getAttribute('aria-expanded') !== 'true';
+    button.setAttribute('aria-expanded', String(open));
+    button.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+    nav?.classList.toggle('is-open', open);
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.25rem;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 1.15rem;
+    margin-right: auto;
+  }
+  .logo-mark {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 12px 12px 12px 4px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-size: 1.15rem;
+    transform: rotate(-6deg);
+    transition: transform 0.25s ease;
+  }
+  .logo:hover .logo-mark {
+    transform: rotate(4deg) scale(1.05);
+  }
+  .nav ul {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav a {
+    display: block;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .nav a:hover {
+    color: var(--text);
+    background: var(--surface-soft);
+  }
+  .nav a[aria-current='page'] {
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    order: 2;
+  }
+  .icon-button {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+  }
+  .icon-button:hover {
+    color: var(--accent);
+  }
+  .icon-button svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+  .menu-button {
+    display: none;
+  }
+
+  /* Smartphone: Menü hinter einem Knopf */
+  @media (max-width: 47.99rem) {
+    .inner {
+      flex-wrap: wrap;
+    }
+    .menu-button {
+      display: grid;
+      gap: 4px;
+      place-content: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+    }
+    .menu-button span {
+      display: block;
+      width: 1.1rem;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--text);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .menu-button[aria-expanded='true'] span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+    .menu-button[aria-expanded='true'] span:nth-child(2) {
+      opacity: 0;
+    }
+    .menu-button[aria-expanded='true'] span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+    .nav {
+      display: none;
+      order: 3;
+      width: 100%;
+      padding-bottom: 1rem;
+    }
+    .nav.is-open {
+      display: block;
+    }
+    .nav ul {
+      flex-direction: column;
+    }
+    .nav a {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+    }
+    .logo-text {
+      font-size: 1rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .nav {
+      order: 1;
+    }
+  }
+</style>

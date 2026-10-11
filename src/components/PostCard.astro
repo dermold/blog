@@ -1,0 +1,90 @@
+---
+import { CATEGORIES } from '../consts';
+import { formatDate, readingTime, url, type Post } from '../lib/utils';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const category = CATEGORIES[post.data.category];
+---
+
+<article class="card">
+  <div class="meta">
+    <a class="chip" href={url(`kategorien/${post.data.category}/`)}>
+      <span aria-hidden="true">{category.emoji}</span>
+      {category.name}
+    </a>
+    <span class="reading">{readingTime(post.body)} Min. Lesezeit</span>
+  </div>
+  <h3>
+    <a href={url(`blog/${post.id}/`)}>{post.data.title}</a>
+  </h3>
+  <p class="description">{post.data.description}</p>
+  <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .meta .chip {
+    position: relative;
+    z-index: 2;
+  }
+  .reading {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  h3 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+  h3 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  /* Die ganze Karte ist anklickbar */
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+  }
+  .card:hover h3 a {
+    color: var(--accent);
+  }
+  .description {
+    margin: 0;
+    color: var(--text-muted);
+    flex: 1;
+  }
+  time {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+</style>

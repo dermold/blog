@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/utils';
+---
+
+<BaseLayout title="Über mich" description="Wer hier schreibt.">
+  <div class="container narrow">
+    <header class="page-head">
+      <span class="eyebrow">Über mich</span>
+      <h1>Hallo, ich bin Sebastian 👋</h1>
+    </header>
+
+    <div class="intro">
+      <div class="avatar" aria-hidden="true">S</div>
+      <div class="prose">
+        <p>
+          <!-- Hier kannst du dich vorstellen. Ersetze diesen Text einfach durch deinen eigenen. -->
+          Schön, dass du hier bist! Auf diesem Blog teile ich Gedanken aus meinem Alltag, Dinge, die mich beschäftigen,
+          und Geschichten, die ich mir ausgedacht habe.
+        </p>
+        <p>
+          Manche Beiträge sind ganz persönlich, andere sind Erzählungen zum Abtauchen. Gemeinsam haben sie, dass mir
+          jeder einzelne am Herzen liegt.
+        </p>
+      </div>
+    </div>
+
+    <section class="facts">
+      <h2>Ein paar Dinge über mich</h2>
+      <ul>
+        <li><span aria-hidden="true">✍️</span> Ich schreibe am liebsten …</li>
+        <li><span aria-hidden="true">📚</span> Meine Lieblingsbücher sind …</li>
+        <li><span aria-hidden="true">☕</span> Ohne … geht bei mir nichts.</li>
+      </ul>
+    </section>
+
+    <p class="cta">
+      <a class="button" href={url('blog/')}>Zu meinen Beiträgen →</a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: 7rem;
+    height: 7rem;
+    border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%;
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 50%, #ff9ad5));
+    color: #fff;
+    font-size: 3rem;
+    font-weight: 900;
+    box-shadow: var(--shadow-hover);
+  }
+  @media (max-width: 36rem) {
+    .intro {
+      grid-template-columns: 1fr;
+    }
+  }
+  .facts {
+    margin-top: 3rem;
+    padding: 1.75rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .facts h2 {
+    margin: 0 0 1rem;
+    font-size: 1.3rem;
+  }
+  .facts ul {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .facts li {
+    display: flex;
+    gap: 0.75rem;
+  }
+  .cta {
+    margin-top: 2.5rem;
+  }
+</style>

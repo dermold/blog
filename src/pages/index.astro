@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { CATEGORIES, type CategoryKey } from '../consts';
+import { getPosts, url } from '../lib/utils';
+
+const posts = await getPosts();
+const latest = posts.slice(0, 6);
+const counts = Object.fromEntries(
+  (Object.keys(CATEGORIES) as CategoryKey[]).map((key) => [key, posts.filter((p) => p.data.category === key).length]),
+);
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Willkommen</span>
+      <h1>
+        Hallo, ich bin Sebastian.<br />
+        Hier schreibe ich über <span class="highlight">das Leben</span> und erzähle{' '}<span class="highlight">Geschichten</span>.
+      </h1>
+      <p class="lead">
+        Ein Ort für persönliche Gedanken, kleine und große Erlebnisse und Erzählungen, die ich mit dir teilen möchte.
+      </p>
+      <div class="hero-actions">
+        <a class="button" href={url('blog/')}>Zu den Beiträgen →</a>
+        <a class="button ghost" href={url('ueber-mich/')}>Über mich</a>
+      </div>
+    </div>
+    <div class="blob blob-1" aria-hidden="true"></div>
+    <div class="blob blob-2" aria-hidden="true"></div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="categories">
+        {
+          (Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[CategoryKey]][]).map(([key, cat]) => (
+            <a class="category" href={url(`kategorien/${key}/`)}>
+              <span class="emoji" aria-hidden="true">{cat.emoji}</span>
+              <span class="name">{cat.name}</span>
+              <span class="desc">{cat.description}</span>
+              <span class="count">
+                {counts[key]} {counts[key] === 1 ? 'Beitrag' : 'Beiträge'}
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Neueste Beiträge</h2>
+        <a href={url('blog/')}>Alle ansehen →</a>
+      </div>
+      {
+        latest.length > 0 ? (
+          <ul class="post-grid">
+            {latest.map((post) => (
+              <li>
+                <PostCard post={post} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="empty">Noch keine Beiträge. Der erste kommt bald!</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(3rem, 10vw, 6.5rem) clamp(2rem, 6vw, 4rem);
+  }
+  .hero .container {
+    position: relative;
+    z-index: 1;
+  }
+  h1 {
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    font-weight: 900;
+    max-width: 18em;
+    margin: 0 0 1.25rem;
+  }
+  .highlight {
+    color: var(--accent);
+    background: linear-gradient(transparent 62%, var(--accent-soft) 62%);
+    padding-inline: 0.1em;
+  }
+  .lead {
+    max-width: 36rem;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin: 0 0 2rem;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .blob-1 {
+    width: 22rem;
+    height: 22rem;
+    right: -6rem;
+    top: -4rem;
+    background: var(--accent-soft);
+    animation: float 12s ease-in-out infinite;
+  }
+  .blob-2 {
+    width: 14rem;
+    height: 14rem;
+    right: 18%;
+    bottom: -5rem;
+    background: color-mix(in srgb, var(--accent) 30%, transparent);
+    animation: float 15s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    50% {
+      transform: translate(-1.5rem, 1.5rem) scale(1.08);
+    }
+  }
+  .categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1.25rem;
+  }
+  .category {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1.75rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    color: var(--text);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .category:hover {
+    color: var(--text);
+    transform: translateY(-4px) rotate(-0.5deg);
+    box-shadow: var(--shadow-hover);
+  }
+  .emoji {
+    font-size: 2rem;
+  }
+  .name {
+    font-size: 1.4rem;
+    font-weight: 900;
+  }
+  .desc {
+    color: var(--text-muted);
+  }
+  .count {
+    margin-top: 0.5rem;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--accent);
+  }
+</style>

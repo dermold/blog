@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { CATEGORIES, type CategoryKey } from '../../consts';
+import { getPosts, url, type Post } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return (Object.keys(CATEGORIES) as CategoryKey[]).map((key) => ({
+    params: { category: key },
+    props: { key, posts: posts.filter((p) => p.data.category === key) },
+  }));
+}
+
+interface Props {
+  key: CategoryKey;
+  posts: Post[];
+}
+
+const { key, posts } = Astro.props;
+const category = CATEGORIES[key];
+const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[CategoryKey]][];
+---
+
+<BaseLayout title={category.name} description={category.description}>
+  <div class="container">
+    <header class="page-head">
+      <span class="eyebrow">Kategorie</span>
+      <h1><span aria-hidden="true">{category.emoji}</span> {category.name}</h1>
+      <p>{category.description}</p>
+    </header>
+
+    <nav aria-label="Nach Kategorie filtern" class="filter">
+      <ul class="chip-list">
+        <li><a class="chip" href={url('blog/')}>Alle</a></li>
+        {
+          entries.map(([k, cat]) => (
+            <li>
+              <a
+                class:list={['chip', { 'is-active': k === key }]}
+                href={url(`kategorien/${k}/`)}
+                aria-current={k === key ? 'page' : undefined}
+              >
+                <span aria-hidden="true">{cat.emoji}</span> {cat.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    {
+      posts.length > 0 ? (
+        <ul class="post-grid">
+          {posts.map((post) => (
+            <li>
+              <PostCard post={post} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">In dieser Kategorie gibt es noch keine Beiträge.</p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .filter {
+    margin-bottom: 2rem;
+  }
+</style>

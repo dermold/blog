@@ -1,0 +1,52 @@
+---
+import { SITE_TITLE, AUTHOR } from '../consts';
+import { url } from '../lib/utils';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p>© {year} {AUTHOR} · {SITE_TITLE}</p>
+    <ul>
+      <li><a href={url('blog/')}>Alle Beiträge</a></li>
+      <li><a href={url('ueber-mich/')}>Über mich</a></li>
+      <li><a href={url('rss.xml')}>RSS-Feed</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 4rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 2rem;
+  }
+  p {
+    margin: 0;
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  a:hover {
+    color: var(--accent);
+  }
+</style>
