@@ -1,0 +1,102 @@
+# Einstellungen für den Admin-Bereich (Sveltia CMS) unter /blog/admin/.
+# Hier steht, wo die Beiträge liegen und welche Felder das Formular hat.
+# Die Felder entsprechen src/content.config.ts. Wenn du dort etwas änderst,
+# muss es hier ebenfalls angepasst werden.
+
+app_title: Sebastians Blog – Admin
+
+# Beiträge werden direkt im GitHub-Repository gespeichert.
+# Anmelden kann sich nur, wer Schreibrechte auf dieses Repository hat.
+backend:
+  name: github
+  repo: dermold/blog
+  branch: main
+  commit_messages:
+    create: 'Neuer Beitrag: {{slug}}'
+    update: 'Beitrag bearbeitet: {{slug}}'
+    delete: 'Beitrag gelöscht: {{slug}}'
+    uploadMedia: 'Bild hochgeladen: {{path}}'
+    deleteMedia: 'Bild gelöscht: {{path}}'
+
+site_url: https://dermold.github.io/blog
+display_url: https://dermold.github.io/blog
+
+# Hochgeladene Bilder landen in public/images und sind dann unter /blog/images/ erreichbar.
+media_folder: public/images
+public_folder: /blog/images
+
+# Dateinamen der Beiträge: "Mein erster Beitrag" wird zu "mein-erster-beitrag.md".
+slug:
+  encoding: ascii
+  clean_accents: true
+
+output:
+  omit_empty_optional_fields: true
+
+collections:
+  - name: blog
+    label: Beiträge
+    label_singular: Beitrag
+    description: Alle Blogbeiträge. Änderungen sind nach ein bis zwei Minuten online.
+    folder: src/content/blog
+    extension: md
+    format: frontmatter
+    create: true
+    delete: true
+    slug: '{{title}}'
+    summary: '{{title}} · {{date}}{{draft | ternary(" · Entwurf", "")}}'
+    sortable_fields:
+      fields: [date, title]
+      default:
+        field: date
+        direction: descending
+    view_filters:
+      - label: Entwürfe
+        field: draft
+        pattern: true
+    view_groups:
+      - label: Kategorie
+        field: category
+    preview_path: 'blog/{{slug}}/'
+    fields:
+      - name: title
+        label: Titel
+        widget: string
+      - name: description
+        label: Kurzbeschreibung
+        hint: Ein bis zwei Sätze, worum es geht. Erscheint in der Übersicht.
+        widget: text
+      - name: date
+        label: Datum
+        widget: datetime
+        format: YYYY-MM-DD
+        time_format: false
+        default: '{{now}}'
+      - name: updated
+        label: Zuletzt aktualisiert
+        hint: Optional. Nur ausfüllen, wenn du einen älteren Beitrag nachträglich geändert hast.
+        widget: datetime
+        format: YYYY-MM-DD
+        time_format: false
+        required: false
+      - name: category
+        label: Kategorie
+        widget: select
+        options:
+          - { label: '🌿 Persönliches', value: persoenliches }
+          - { label: '📖 Geschichten', value: geschichten }
+        default: persoenliches
+      - name: tags
+        label: Tags
+        hint: Schlagwörter, z. B. "Reisen" oder "Kurzgeschichte".
+        widget: list
+        default: []
+        required: false
+      - name: draft
+        label: Entwurf
+        hint: Solange der Haken gesetzt ist, ist der Beitrag nicht öffentlich sichtbar. Zum Veröffentlichen den Haken entfernen und speichern.
+        widget: boolean
+        default: true
+      - name: body
+        label: Text
+        widget: markdown

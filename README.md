@@ -2,7 +2,18 @@
 
 Mein persönlicher Blog, gebaut mit [Astro](https://astro.build). Beiträge sind einfache Markdown-Dateien.
 
-## Einen neuen Beitrag schreiben
+## Beiträge im Admin-Bereich schreiben (am einfachsten)
+
+Unter **https://dermold.github.io/blog/admin/** gibt es einen Admin-Bereich, in dem du Beiträge
+im Browser erstellen, bearbeiten und löschen kannst (auch am Handy).
+
+- Anmelden mit **„Mit Zugriffstoken anmelden“** und deinem persönlichen GitHub-Zugriffstoken.
+  Nur wer Schreibrechte auf dieses Repository hat, kann sich anmelden.
+- Jedes Speichern landet direkt auf GitHub, nach ein bis zwei Minuten ist die Seite aktualisiert.
+- Neue Beiträge sind zuerst **Entwürfe**. Zum Veröffentlichen den Haken bei „Entwurf“ entfernen und speichern.
+- Die Einstellungen des Admin-Bereichs stehen in `public/admin/config.yml`.
+
+## Einen neuen Beitrag als Datei schreiben
 
 1. Öffne den Ordner `src/content/blog/`.
 2. Lege eine neue Datei an, z. B. `mein-neuer-beitrag.md`. Der Dateiname wird zur Adresse
