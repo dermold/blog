@@ -4,7 +4,7 @@
    ========================================================== */
 :root {
   --bg: #efeaf6;            /* helles Lavendel */
-  --surface: #ffffff;       /* Karten und Flächen */
+  --surface: rgb(255 255 255 / 0.55);  /* Karten und Flächen (Glas) */
   --surface-soft: #e4dcf0;  /* dezente Hintergründe */
   --text: #1a1029;
   --text-muted: #5e5470;
@@ -16,12 +16,14 @@
   --accent-contrast: #ffffff;
   --pop: #d7ff3c;           /* Neon-Gelbgrün für Sticker */
   --pop-text: #1a1029;
-  --hard: 4px 4px 0 var(--ink);
-  --hard-lg: 7px 7px 0 var(--ink);
+  --glass-hi: rgb(255 255 255 / 0.6);   /* heller Glanz an der Oberkante */
+  --glass-blur: blur(14px) saturate(170%);
+  --hard: inset 0 1px 0 var(--glass-hi), 4px 4px 0 var(--ink);
+  --hard-lg: inset 0 1px 0 var(--glass-hi), 7px 7px 0 var(--ink);
 
   /* Dunkle Flächen für Terminal (Persönliches) und Portal (Geschichten) */
-  --term-bg: #140b22;
-  --term-bar: #22143a;
+  --term-bg: rgb(20 11 34 / 0.86);
+  --term-bar: rgb(255 255 255 / 0.07);
   --term-text: #ddd0ff;
   --term-dim: #8f80ad;
   --term-prompt: #c6f24e;
@@ -40,7 +42,7 @@
 
 :root[data-theme='dark'] {
   --bg: #100a1a;
-  --surface: #1b1229;
+  --surface: rgb(38 24 62 / 0.55);
   --surface-soft: #261a39;
   --text: #ede6fa;
   --text-muted: #a99cc2;
@@ -50,9 +52,10 @@
   --accent-strong: #c7b2ff;
   --accent-soft: #2c1d47;
   --accent-contrast: #100a1a;
-  --hard: 4px 4px 0 #5b2bb5;
-  --hard-lg: 7px 7px 0 #5b2bb5;
-  --term-bg: #0b0613;
+  --glass-hi: rgb(255 255 255 / 0.12);
+  --hard: inset 0 1px 0 var(--glass-hi), 4px 4px 0 #5b2bb5;
+  --hard-lg: inset 0 1px 0 var(--glass-hi), 7px 7px 0 #5b2bb5;
+  --term-bg: rgb(11 6 19 / 0.78);
   color-scheme: dark;
 }
 
@@ -86,8 +89,47 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+/* Weiche Farbflecken im Hintergrund, damit das Glas etwas zum Durchscheinen hat */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 30rem at 85% 10%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 70%),
+    radial-gradient(35rem 28rem at 5% 60%, color-mix(in srgb, #ff6b8b 16%, transparent), transparent 70%),
+    radial-gradient(30rem 24rem at 70% 95%, color-mix(in srgb, var(--pop) 22%, transparent), transparent 70%);
+}
+
 main {
   flex: 1;
+}
+
+/* Glas: alle hellen Flächen und dunklen Karten bekommen Unschärfe dahinter */
+.site-header,
+.site-footer,
+.chip,
+.button,
+.box,
+.empty,
+.sticker,
+.icon-button,
+.theme-toggle,
+.menu-button,
+.pager-link,
+.facts,
+.status,
+.search input,
+.results a,
+.card,
+.world,
+.post-head,
+.flavor-term,
+.ticker,
+.list a {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
 }
 
 img {
@@ -236,12 +278,13 @@ a.chip:hover {
 
 .button {
   display: inline-flex;
+  position: relative;
   align-items: center;
   gap: 0.5rem;
   padding: 0.8rem 1.4rem;
   border: 2px solid var(--ink);
   border-radius: var(--radius);
-  background: var(--accent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 80%, #fff 20%), var(--accent) 55%);
   color: var(--accent-contrast);
   font-weight: 700;
   text-decoration: none;

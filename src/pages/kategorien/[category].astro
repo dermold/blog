@@ -34,8 +34,8 @@ const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[
             <b>$</b> ls ~/{category.folder} <span class="cursor" />
           </p>
         ) : (
-          <p class="flavor flavor-portal" aria-hidden="true">
-            Es war einmal …
+          <p class="flavor flavor-portal">
+            Es war einmal … <a href={url('geschichten/')}>zur Welt der Geschichten →</a>
           </p>
         )
       }

@@ -1,0 +1,388 @@
+---
+// Übersicht der Welt 2: die Seite hinter dem Portal.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CATEGORIES } from '../consts';
+import { collectTags, formatDate, getPosts, readingTime, url } from '../lib/utils';
+
+const stories = (await getPosts()).filter((p) => p.data.category === 'geschichten');
+const [featured, ...rest] = stories;
+const minutes = stories.reduce((sum, p) => sum + readingTime(p.body), 0);
+const tags = collectTags(stories);
+const category = CATEGORIES.geschichten;
+
+const kinds = [
+  { title: 'Kurzgeschichten', text: 'Kurz und dicht, am besten in einem Rutsch gelesen.' },
+  { title: 'Erzählungen', text: 'Längere Geschichten für einen ruhigen Abend.' },
+  { title: 'Ausgedachtes', text: 'Kleine Welten, Ideen und Fragmente.' },
+];
+---
+
+<BaseLayout title="Die Welt der Geschichten" description={category.description}>
+  <section class="sky">
+    <div class="gate" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+
+    <div class="container inner">
+      <a class="back" href={url('')}>← zurück durchs Portal</a>
+
+      <header class="intro">
+        <span class="eyebrow">Welt 2 · {category.name}</span>
+        <h1>Die Welt der Geschichten</h1>
+        <p class="lead">
+          Hinter diesem Portal sammle ich {category.description.replace(/\.$/, '')}. Such dir eine aus, mach es dir
+          bequem und tauch ab.
+        </p>
+        <ul class="stats">
+          <li class="glass"><strong>{stories.length}</strong> {stories.length === 1 ? 'Erzählung' : 'Erzählungen'}</li>
+          <li class="glass"><strong>{minutes}</strong> Min. Lesestoff</li>
+          <li class="glass"><strong>{tags.length}</strong> {tags.length === 1 ? 'Thema' : 'Themen'}</li>
+        </ul>
+      </header>
+
+      {
+        featured ? (
+          <a class="featured glass" href={url(`blog/${featured.id}/`)}>
+            <span class="label">✦ Neueste Erzählung</span>
+            <span class="f-title">{featured.data.title}</span>
+            <span class="f-desc">{featured.data.description}</span>
+            <span class="meta">
+              <time datetime={featured.data.date.toISOString()}>{formatDate(featured.data.date)}</time>
+              <span>{readingTime(featured.body)} Min.</span>
+              <span class="go">Lesen →</span>
+            </span>
+          </a>
+        ) : (
+          <div class="featured glass waiting">
+            <span class="label">✦ Bald hier</span>
+            <span class="f-title">Die erste Geschichte wird gerade geschrieben …</span>
+            <span class="f-desc">
+              Noch ist diese Welt leer. Sobald die erste Erzählung fertig ist, erscheint sie genau an dieser Stelle.
+            </span>
+            <span class="meta">
+              <a href={url('kategorien/persoenliches/')}>Solange: Welt 1 besuchen →</a>
+            </span>
+          </div>
+        )
+      }
+
+      {
+        rest.length > 0 && (
+          <section class="block">
+            <h2>Weitere Erzählungen</h2>
+            <ul class="stories">
+              {rest.map((story) => (
+                <li>
+                  <a class="story glass" href={url(`blog/${story.id}/`)}>
+                    <span class="s-title">{story.data.title}</span>
+                    <span class="s-desc">{story.data.description}</span>
+                    <span class="meta">
+                      <time datetime={story.data.date.toISOString()}>{formatDate(story.data.date)}</time>
+                      <span>{readingTime(story.body)} Min.</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        tags.length > 0 && (
+          <section class="block">
+            <h2>Themen</h2>
+            <ul class="topics">
+              {tags.map((tag) => (
+                <li>
+                  <a class="glass topic" href={url(`tags/${tag.slug}/`)}>
+                    #{tag.name} <span>{tag.count}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <section class="block">
+        <h2>Was dich hier erwartet</h2>
+        <ul class="kinds">
+          {
+            kinds.map((kind) => (
+              <li class="glass kind">
+                <strong>{kind.title}</strong>
+                <span>{kind.text}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Die ganze Seite liegt in einem Nachthimmel, unabhängig von Hell/Dunkel */
+  .sky {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - 4.25rem);
+    margin-bottom: -4rem;
+    padding-block: 2rem 6rem;
+    color: #e9e0ff;
+    background-color: #0b0613;
+    background-image:
+      radial-gradient(circle at 85% 18%, rgb(143 108 255 / 0.55), transparent 35%),
+      radial-gradient(circle at 10% 85%, rgb(91 43 181 / 0.6), transparent 40%),
+      radial-gradient(circle at 60% 70%, rgb(215 255 60 / 0.08), transparent 30%),
+      radial-gradient(rgb(255 255 255 / 0.5) 1px, transparent 1.5px),
+      radial-gradient(rgb(255 255 255 / 0.22) 1px, transparent 1.5px);
+    background-size: auto, auto, auto, 53px 53px, 31px 31px;
+    background-position: 0 0, 0 0, 0 0, 9px 13px, 21px 4px;
+  }
+  .inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Großes Tor im Hintergrund */
+  .gate {
+    position: absolute;
+    top: -6rem;
+    right: -6rem;
+    display: grid;
+    place-items: center;
+    width: min(38rem, 90vw);
+    aspect-ratio: 1;
+    opacity: 0.55;
+  }
+  .gate i {
+    position: absolute;
+    border: 2px solid rgb(199 178 255 / 0.5);
+    border-radius: 30%;
+    animation: spin 40s linear infinite;
+  }
+  .gate i:nth-child(1) {
+    inset: 0;
+  }
+  .gate i:nth-child(2) {
+    inset: 13%;
+    animation-direction: reverse;
+    animation-duration: 30s;
+  }
+  .gate i:nth-child(3) {
+    inset: 26%;
+    animation-duration: 22s;
+  }
+  .gate i:nth-child(4) {
+    inset: 38%;
+    animation-direction: reverse;
+    animation-duration: 15s;
+  }
+  .gate b {
+    width: 10%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 40px 16px rgb(143 108 255 / 0.8);
+  }
+  @keyframes spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  /* Glas-Fläche */
+  .glass {
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04));
+    border: 1.5px solid rgb(255 255 255 / 0.2);
+    border-radius: 12px;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.25),
+      0 10px 30px rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+  }
+  a.glass {
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  a.glass:hover {
+    transform: translateY(-3px);
+    border-color: rgb(215 255 60 / 0.6);
+  }
+
+  .back {
+    display: inline-block;
+    margin-bottom: 2.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #c7b2ff;
+    text-decoration: none;
+  }
+  .back:hover {
+    color: var(--pop);
+  }
+  .eyebrow {
+    color: #c7b2ff;
+  }
+  h1 {
+    max-width: 14em;
+    margin: 0 0 1rem;
+    font-family: var(--font-read);
+    font-weight: 600;
+    font-size: clamp(2.4rem, 7vw, 4.4rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: #fff;
+  }
+  .lead {
+    max-width: 36rem;
+    margin: 0 0 1.75rem;
+    font-family: var(--font-read);
+    font-style: italic;
+    font-size: 1.2rem;
+    color: #cfc3ea;
+  }
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0 0 3rem;
+    padding: 0;
+    list-style: none;
+  }
+  .stats li {
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+  .stats strong {
+    color: var(--pop);
+  }
+
+  .featured {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 46rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c7b2ff;
+  }
+  .f-title {
+    font-family: var(--font-read);
+    font-weight: 600;
+    font-size: clamp(1.6rem, 4vw, 2.3rem);
+    line-height: 1.2;
+    color: #fff;
+  }
+  .f-desc,
+  .s-desc {
+    font-family: var(--font-read);
+    font-style: italic;
+    line-height: 1.65;
+    color: #cfc3ea;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-top: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: #a99cc2;
+  }
+  .meta a {
+    color: var(--pop);
+    font-weight: 700;
+  }
+  .go {
+    margin-left: auto;
+    color: var(--pop);
+    font-weight: 700;
+  }
+  .waiting .f-title::after {
+    content: '';
+    display: inline-block;
+    width: 0.5em;
+    height: 0.9em;
+    margin-left: 0.15em;
+    vertical-align: baseline;
+    background: var(--pop);
+    animation: blink 1.2s steps(2) infinite;
+  }
+
+  .block {
+    margin-top: 3.5rem;
+  }
+  .block h2 {
+    margin: 0 0 1.25rem;
+    font-size: 1.5rem;
+    color: #fff;
+  }
+  .stories,
+  .kinds,
+  .topics {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stories,
+  .kinds {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  }
+  .story {
+    display: grid;
+    gap: 0.6rem;
+    height: 100%;
+    padding: 1.4rem;
+  }
+  .s-title {
+    font-family: var(--font-read);
+    font-weight: 600;
+    font-size: 1.3rem;
+    line-height: 1.25;
+    color: #fff;
+  }
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .topic {
+    display: inline-flex;
+    gap: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .topic span {
+    color: var(--pop);
+  }
+  .kind {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1.3rem 1.4rem;
+  }
+  .kind strong {
+    font-family: var(--font-read);
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #fff;
+  }
+  .kind span {
+    color: #cfc3ea;
+  }
+</style>

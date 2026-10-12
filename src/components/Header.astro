@@ -6,6 +6,7 @@ import { url } from '../lib/utils';
 const links = [
   { href: url(''), label: 'Start' },
   { href: url('blog/'), label: 'Blog' },
+  { href: url('geschichten/'), label: 'Geschichten' },
   { href: url('kategorien/'), label: 'Kategorien' },
   { href: url('tags/'), label: 'Tags' },
   { href: url('ueber-mich/'), label: 'Über mich' },
@@ -73,10 +74,9 @@ const isActive = (href: string) => {
     position: sticky;
     top: 0;
     z-index: 50;
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: color-mix(in srgb, var(--bg) 55%, transparent);
     border-bottom: 2px solid var(--ink);
+    box-shadow: inset 0 -1px 0 var(--glass-hi);
   }
   .inner {
     display: flex;
@@ -144,6 +144,7 @@ const isActive = (href: string) => {
     font-family: var(--font-mono);
     font-size: 0.9rem;
     font-weight: 700;
+    white-space: nowrap;
     text-decoration: none;
     transition: background-color 0.12s ease, color 0.12s ease, transform 0.12s ease;
   }
@@ -197,7 +198,7 @@ const isActive = (href: string) => {
   }
 
   /* Smartphone: Menü hinter einem Knopf */
-  @media (max-width: 47.99rem) {
+  @media (max-width: 59.99rem) {
     .inner {
       flex-wrap: wrap;
     }
@@ -256,7 +257,7 @@ const isActive = (href: string) => {
     }
   }
 
-  @media (min-width: 48rem) {
+  @media (min-width: 60rem) {
     .nav {
       order: 1;
     }

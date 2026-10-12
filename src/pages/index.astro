@@ -58,8 +58,11 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
         <h1>
           Hallo, ich bin Sebastian.
           <span class="line">
-            Hier schreibe ich über <span class="tag-term">das Leben</span> und erzähle{' '}
-            <span class="tag-story">Geschichten</span>.
+            Hier schreibe ich über <a class="tag-term" href={url('kategorien/persoenliches/')}>das Leben</a> und
+            erzähle{' '}
+            <a class="tag-story" href={url('geschichten/')} data-portal>
+              Geschichten
+            </a>.
           </span>
         </h1>
         <p class="lead">
@@ -124,7 +127,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
           </span>
         </a>
 
-        <a class="world world-portal reveal" href={url('kategorien/geschichten/')} data-portal>
+        <a class="world world-portal reveal" href={url('geschichten/')} data-portal>
           <span class="sticker world-no">Welt 2</span>
           <span class="win-bar">
             <span class="dots"><i></i><i></i><i></i></span>
@@ -175,13 +178,12 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
 
 <script>
   // Welt 2: Beim Klick wird man ins Portal hineingezogen, danach öffnet sich die Seite.
-  const link = document.querySelector<HTMLAnchorElement>('[data-portal]');
-  const gate = link?.querySelector<HTMLElement>('.portal-gate');
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  link?.addEventListener('click', (event) => {
+  document.querySelectorAll<HTMLAnchorElement>('[data-portal]').forEach((link) => link.addEventListener('click', (event) => {
     if (calm || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
+    const gate = link.querySelector<HTMLElement>('.portal-gate');
     const rect = (gate ?? link).getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
@@ -199,7 +201,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     setTimeout(() => {
       location.href = link.href;
     }, 900);
-  });
+  }));
 
   // Beim Zurückblättern (Browser-Cache) den Ausgangszustand wiederherstellen.
   window.addEventListener('pageshow', (event) => {
@@ -260,6 +262,19 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     border: 2px solid var(--ink);
     box-shadow: 3px 3px 0 var(--ink);
     line-height: 1.15;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .tag-term:hover,
+  .tag-story:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--ink);
+  }
+  .tag-term:hover {
+    color: var(--term-prompt);
+  }
+  .tag-story:hover {
+    color: var(--pop);
   }
   .tag-term {
     background: var(--term-bg);
@@ -303,7 +318,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     aspect-ratio: 1;
     display: grid;
     place-items: center;
-    background-color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 85%, transparent);
     background-image:
       linear-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px),
       linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px);
@@ -334,7 +349,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
   .ticker {
     overflow: hidden;
     border-block: 2px solid var(--ink);
-    background: var(--accent);
+    background: color-mix(in srgb, var(--accent) 75%, transparent);
     color: #fff;
     font-family: var(--font-mono);
     font-size: 0.85rem;
