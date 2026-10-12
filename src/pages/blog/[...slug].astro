@@ -79,16 +79,15 @@ const isTerminal = category.look === 'terminal';
           </div>
         </header>
       ) : (
-        <header class="post-head head-zine">
-          <span class="tape" aria-hidden="true" />
-          <a class="stamp" href={categoryUrl}>
-            <span aria-hidden="true">{category.emoji}</span> {category.name}
+        <header class="post-head head-portal">
+          <a class="label" href={categoryUrl}>
+            ✦ {category.name}
           </a>
           <h1>{post.data.title}</h1>
           <p class="description">{post.data.description}</p>
           <p class="foot">
             <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-            <span>~ {minutes} Min. Lesezeit ~</span>
+            <span>{minutes} Min. Lesezeit</span>
             {post.data.updated && <span>aktualisiert am {formatDate(post.data.updated)}</span>}
           </p>
         </header>
@@ -108,7 +107,7 @@ const isTerminal = category.look === 'terminal';
             [EOF] <b>$</b> <span class="cursor" />
           </>
         ) : (
-          '~ Ende ~'
+          '✦ Ende ✦'
         )
       }
     </p>
@@ -312,65 +311,53 @@ const isTerminal = category.look === 'terminal';
     color: var(--term-prompt);
   }
 
-  /* ---------- Zine-Kopf ---------- */
-  .head-zine {
+  /* ---------- Portal-Kopf ---------- */
+  .head-portal {
     display: grid;
     gap: 1rem;
-    padding: 2.5rem 1.75rem 1.75rem;
-    color: var(--paper-ink);
-    background-color: var(--paper);
-    background-image: repeating-linear-gradient(transparent 0 1.9rem, var(--paper-line) 1.9rem calc(1.9rem + 1px));
-    rotate: -0.6deg;
+    padding: 1.75rem 1.6rem 1.6rem;
+    color: #e9e0ff;
+    background-color: var(--term-bg);
+    background-image:
+      radial-gradient(circle at 100% 0%, rgb(143 108 255 / 0.45), transparent 55%),
+      radial-gradient(rgb(255 255 255 / 0.35) 1px, transparent 1.5px);
+    background-size: auto, 38px 38px;
+    background-position: 0 0, 5px 9px;
   }
-  .tape {
-    position: absolute;
-    top: -0.9rem;
-    left: 50%;
-    width: 8rem;
-    height: 1.8rem;
-    translate: -50% 0;
-    rotate: 2deg;
-    background: var(--tape);
-    border-inline: 2px dashed rgb(255 255 255 / 0.5);
-  }
-  .stamp {
+  .label {
     justify-self: start;
-    padding: 0.15rem 0.6rem;
-    border: 2px solid #5b2bb5;
-    border-radius: 3px;
-    color: #5b2bb5;
-    font-family: var(--font-type);
-    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
     text-decoration: none;
-    rotate: -3deg;
+    color: #c7b2ff;
   }
-  .stamp:hover {
-    background: #5b2bb5;
+  .label:hover {
+    color: var(--term-prompt);
+  }
+  .head-portal h1 {
+    font-family: var(--font-read);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
     color: #fff;
   }
-  .head-zine h1 {
-    font-family: var(--font-type);
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1.2;
-  }
-  .head-zine .description {
+  .head-portal .description {
     font-family: var(--font-read);
     font-style: italic;
     font-size: 1.15rem;
-    color: #574a3a;
+    color: #cfc3ea;
   }
   .foot {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem 1.5rem;
     margin: 0;
-    font-family: var(--font-hand);
-    font-size: 1.35rem;
-    line-height: 1.2;
-    color: #5b2bb5;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--term-prompt);
   }
 
   .draft {
@@ -381,15 +368,12 @@ const isTerminal = category.look === 'terminal';
   /* Initiale (großer erster Buchstabe) bei Geschichten */
   .dropcap > :global(p:first-of-type)::first-letter {
     float: left;
-    margin: 0.3rem 0.6rem 0 0;
-    padding: 0.35rem 0.55rem 0.15rem;
-    border: 2px solid var(--ink);
-    background: var(--paper);
-    color: #5b2bb5;
-    font-family: var(--font-type);
-    font-size: 3.4em;
-    line-height: 0.9;
-    box-shadow: 3px 3px 0 var(--ink);
+    margin: 0.35rem 0.55rem 0 0;
+    color: var(--accent);
+    font-family: var(--font-read);
+    font-weight: 600;
+    font-size: 3.6em;
+    line-height: 0.85;
   }
   .look-terminal .prose > :global(p:first-of-type) {
     font-size: 1.12em;
@@ -400,9 +384,9 @@ const isTerminal = category.look === 'terminal';
     font-family: var(--font-mono);
     font-size: 0.8em;
   }
-  .look-zine .prose :global(h2) {
-    font-family: var(--font-type);
-    font-weight: 400;
+  .look-portal .prose :global(h2) {
+    font-family: var(--font-read);
+    font-weight: 600;
     letter-spacing: 0;
   }
 
@@ -415,9 +399,10 @@ const isTerminal = category.look === 'terminal';
     font-family: var(--font-mono);
     font-weight: 700;
   }
-  .look-zine .end {
-    font-family: var(--font-hand);
-    font-size: 1.8rem;
+  .look-portal .end {
+    font-family: var(--font-read);
+    font-style: italic;
+    font-size: 1.1rem;
   }
 
   .tags {
@@ -449,7 +434,8 @@ const isTerminal = category.look === 'terminal';
     box-shadow: var(--hard-lg);
   }
   .pager-link span {
-    font-family: var(--font-pixel);
+    font-family: var(--font-mono);
+    font-weight: 700;
     font-size: 0.75rem;
     color: var(--accent);
   }

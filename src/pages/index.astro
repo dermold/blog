@@ -51,17 +51,15 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
   <section class="hero">
     <div class="container hero-grid">
       <div class="hero-text">
-        <p class="hud" aria-label={`${posts.length} Beiträge bisher`}>
-          <span>1UP SEBASTIAN</span>
-          <span>★ {pad(posts.length)}</span>
-          <span class="hearts" aria-hidden="true">♥♥♥</span>
+        <p class="status">
+          <span class="dot" aria-hidden="true"></span>
+          {pad(posts.length)} {posts.length === 1 ? 'Beitrag' : 'Beiträge'} · geschrieben von Sebastian
         </p>
-        <span class="eyebrow press-start">Press Start</span>
         <h1>
           Hallo, ich bin Sebastian.
           <span class="line">
             Hier schreibe ich über <span class="tag-term">das Leben</span> und erzähle{' '}
-            <span class="tag-zine">Geschichten</span>.
+            <span class="tag-story">Geschichten</span>.
           </span>
         </h1>
         <p class="lead">
@@ -78,11 +76,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
           <svg class="sprite" viewBox="0 0 16 16" shape-rendering="crispEdges">
             {pixels.map((p) => <rect x={p.x} y={p.y} width="1" height="1" fill={p.fill} />)}
           </svg>
-          <span class="sparkle s1">✦</span>
-          <span class="sparkle s2">✦</span>
-          <span class="sparkle s3">+</span>
         </div>
-        <span class="sticker new">★ Neu hier?</span>
       </div>
     </div>
   </section>
@@ -95,7 +89,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
             <span>
               {ticker.map((word) => (
                 <>
-                  {word} <b>✦</b>{' '}
+                  {word} <b>/</b>{' '}
                 </>
               ))}
             </span>
@@ -113,7 +107,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
       <div class="worlds">
         <a class="world world-term reveal" href={url('kategorien/persoenliches/')}>
           <span class="sticker world-no">Welt 1</span>
-          <span class="term-bar">
+          <span class="win-bar">
             <span class="dots"><i></i><i></i><i></i></span>
             sebastian@blog: ~/{CATEGORIES.persoenliches.folder}
           </span>
@@ -130,15 +124,27 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
           </span>
         </a>
 
-        <a class="world world-zine reveal" href={url('kategorien/geschichten/')}>
-          <span class="tape"></span>
-          <span class="hand">Welt 2 ~</span>
-          <span class="zine-title">{CATEGORIES.geschichten.name}</span>
-          <span class="zine-desc">{CATEGORIES.geschichten.description}</span>
-          <span class="hand count">
-            {counts.geschichten} {counts.geschichten === 1 ? 'Erzählung' : 'Erzählungen'} →
+        <a class="world world-portal reveal" href={url('kategorien/geschichten/')} data-portal>
+          <span class="sticker world-no">Welt 2</span>
+          <span class="win-bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            portal: ~/{CATEGORIES.geschichten.folder}
           </span>
-          <span class="doodle">✎</span>
+          <span class="portal-body">
+            <span class="portal-text">
+              <span class="once">Es war einmal …</span>
+              <span class="portal-title">{CATEGORIES.geschichten.name}</span>
+              <span class="portal-desc">{CATEGORIES.geschichten.description}</span>
+              <span class="portal-count">
+                {counts.geschichten} {counts.geschichten === 1 ? 'Erzählung' : 'Erzählungen'}
+              </span>
+              <span class="portal-enter">Eintreten →</span>
+            </span>
+            <span class="portal-gate" aria-hidden="true">
+              <i></i><i></i><i></i><i></i>
+              <b></b>
+            </span>
+          </span>
         </a>
       </div>
     </div>
@@ -167,6 +173,42 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
   </section>
 </BaseLayout>
 
+<script>
+  // Welt 2: Beim Klick wird man ins Portal hineingezogen, danach öffnet sich die Seite.
+  const link = document.querySelector<HTMLAnchorElement>('[data-portal]');
+  const gate = link?.querySelector<HTMLElement>('.portal-gate');
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  link?.addEventListener('click', (event) => {
+    if (calm || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const rect = (gate ?? link).getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const root = document.documentElement;
+    root.style.setProperty('--portal-x', `${x}px`);
+    root.style.setProperty('--portal-y', `${y}px`);
+    root.style.setProperty('--portal-page-y', `${y + window.scrollY}px`);
+    const overlay = document.createElement('div');
+    overlay.className = 'portal-overlay';
+    document.body.append(overlay);
+    root.classList.add('portal-active');
+    try {
+      sessionStorage.setItem('portal', '1');
+    } catch {}
+    setTimeout(() => {
+      location.href = link.href;
+    }, 900);
+  });
+
+  // Beim Zurückblättern (Browser-Cache) den Ausgangszustand wiederherstellen.
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) return;
+    document.documentElement.classList.remove('portal-active');
+    document.querySelectorAll('.portal-overlay').forEach((el) => el.remove());
+  });
+</script>
+
 <style>
   /* ---------- Hero ---------- */
   .hero {
@@ -178,27 +220,25 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     align-items: center;
     gap: clamp(2rem, 5vw, 4rem);
   }
-  .hud {
+  .status {
     display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 1.25rem;
-    margin: 0 0 1.75rem;
-    padding: 0.45rem 0.8rem;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+    padding: 0.35rem 0.75rem;
     border: 2px solid var(--ink);
-    background: var(--term-bg);
-    color: var(--term-text);
-    font-family: var(--font-pixel);
-    font-size: 0.75rem;
-    box-shadow: 3px 3px 0 var(--ink);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
   }
-  .hearts {
-    color: #ff6b8b;
-    letter-spacing: 0.1em;
-  }
-  .press-start {
-    display: block;
-    width: fit-content;
-    animation: blink 1.4s steps(2) infinite;
+  .dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: #3fbf6a;
+    box-shadow: 0 0 0 3px color-mix(in srgb, #3fbf6a 25%, transparent);
   }
   h1 {
     font-size: clamp(2.3rem, 6vw, 4.2rem);
@@ -212,15 +252,14 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     color: var(--text-muted);
     font-weight: 500;
   }
-  /* "das Leben" als Terminal-Schnipsel, "Geschichten" als Papierzettel */
+  /* "das Leben" als Terminal-Schnipsel, "Geschichten" im Portal-Lila */
   .tag-term,
-  .tag-zine {
+  .tag-story {
     display: inline-block;
     padding: 0 0.25em;
-    border: 3px solid var(--ink);
-    box-shadow: 4px 4px 0 var(--ink);
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
     line-height: 1.15;
-    transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
   }
   .tag-term {
     background: var(--term-bg);
@@ -229,25 +268,20 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     font-weight: 700;
     font-size: 0.85em;
     letter-spacing: -0.04em;
-    rotate: -2deg;
   }
   .tag-term::before {
     content: '>';
     color: var(--term-dim);
     margin-right: 0.15em;
   }
-  .tag-zine {
-    background: var(--paper);
-    color: #5b2bb5;
-    font-family: var(--font-type);
+  .tag-story {
+    background: radial-gradient(circle at 70% 40%, #4b2a95, var(--term-bg) 80%);
+    color: #fff;
+    font-family: var(--font-read);
+    font-style: italic;
     font-weight: 400;
     font-size: 0.9em;
-    letter-spacing: -0.02em;
-    rotate: 1.5deg;
-  }
-  .tag-term:hover,
-  .tag-zine:hover {
-    transform: scale(1.06) rotate(-2deg);
+    letter-spacing: -0.01em;
   }
   .lead {
     max-width: 34rem;
@@ -262,12 +296,10 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
   }
 
   .hero-art {
-    position: relative;
     justify-self: center;
-    width: min(100%, 22rem);
+    width: min(100%, 21rem);
   }
   .art-frame {
-    position: relative;
     aspect-ratio: 1;
     display: grid;
     place-items: center;
@@ -277,63 +309,11 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
       linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px);
     background-size: 1.375rem 1.375rem;
     box-shadow: var(--hard-lg);
-    rotate: 2deg;
   }
   .sprite {
     width: 70%;
     image-rendering: pixelated;
-    animation: hop 1.6s steps(2) infinite;
     filter: drop-shadow(6px 6px 0 rgb(0 0 0 / 0.3));
-  }
-  @keyframes hop {
-    50% {
-      transform: translateY(-6%);
-    }
-  }
-  .sparkle {
-    position: absolute;
-    color: var(--pop);
-    font-family: var(--font-pixel);
-    font-size: 1.6rem;
-    animation: twinkle 2.4s steps(3) infinite;
-  }
-  .s1 {
-    top: 10%;
-    left: 12%;
-  }
-  .s2 {
-    top: 22%;
-    right: 10%;
-    font-size: 1rem;
-    animation-delay: 0.8s;
-  }
-  .s3 {
-    bottom: 14%;
-    left: 18%;
-    animation-delay: 1.6s;
-  }
-  @keyframes twinkle {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.2;
-      transform: scale(0.6);
-    }
-  }
-  .new {
-    position: absolute;
-    right: -0.75rem;
-    bottom: -1rem;
-    font-size: 0.85rem;
-    animation: wobble 3s ease-in-out infinite;
-  }
-  @keyframes wobble {
-    50% {
-      transform: rotate(4deg) scale(1.05);
-    }
   }
 
   @media (max-width: 52rem) {
@@ -341,7 +321,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
       grid-template-columns: 1fr;
     }
     .hero-art {
-      width: min(70%, 16rem);
+      width: min(60%, 14rem);
       order: -1;
     }
   }
@@ -349,26 +329,24 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
   /* ---------- Laufband ---------- */
   .ticker-wrap {
     overflow: hidden;
-    padding-block: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
   }
   .ticker {
     overflow: hidden;
     border-block: 2px solid var(--ink);
     background: var(--accent);
     color: #fff;
-    font-family: var(--font-pixel);
-    font-size: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
     text-transform: uppercase;
+    letter-spacing: 0.08em;
     white-space: nowrap;
-    rotate: -1deg;
-    margin-inline: -1rem;
   }
   .ticker-track {
     display: flex;
     width: max-content;
-    padding-block: 0.7rem;
-    animation: marquee 28s linear infinite;
+    padding-block: 0.6rem;
+    animation: marquee 60s linear infinite;
   }
   .ticker-track > span {
     padding-right: 1rem;
@@ -397,10 +375,10 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     border-radius: var(--radius);
     box-shadow: var(--hard);
     text-decoration: none;
-    transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1), box-shadow 0.2s ease, opacity 0.6s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
   }
   .world:hover {
-    transform: translate(-5px, -5px);
+    transform: translate(-3px, -3px);
     box-shadow: var(--hard-lg);
   }
   .world-no {
@@ -408,16 +386,9 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     top: -0.9rem;
     right: 1rem;
     z-index: 1;
+    transform: none;
   }
-
-  .world-term {
-    background: var(--term-bg);
-    color: var(--term-text);
-    font-family: var(--font-mono);
-    font-size: 0.92rem;
-    overflow: visible;
-  }
-  .term-bar {
+  .win-bar {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -425,6 +396,7 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     background: var(--term-bar);
     border-bottom: 2px solid var(--ink);
     border-radius: var(--radius) var(--radius) 0 0;
+    font-family: var(--font-mono);
     font-size: 0.78rem;
     color: var(--term-dim);
   }
@@ -444,6 +416,13 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
   }
   .dots i:nth-child(3) {
     background: #8f6cff;
+  }
+
+  .world-term {
+    background: var(--term-bg);
+    color: var(--term-text);
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
   }
   .term-body {
     display: grid;
@@ -472,60 +451,131 @@ const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Le
     color: var(--term-prompt);
   }
 
-  .world-zine {
-    gap: 0.5rem;
-    padding: 2.25rem 1.75rem 1.75rem;
-    color: var(--paper-ink);
-    background-color: var(--paper);
-    background-image: repeating-linear-gradient(transparent 0 1.9rem, var(--paper-line) 1.9rem calc(1.9rem + 1px));
-    rotate: 1deg;
+  /* Welt 2: ein Portal in die Geschichten */
+  .world-portal {
+    color: #e9e0ff;
+    background-color: var(--term-bg);
+    background-image:
+      radial-gradient(circle at 80% 60%, rgb(143 108 255 / 0.45), transparent 45%),
+      radial-gradient(rgb(255 255 255 / 0.45) 1px, transparent 1.5px),
+      radial-gradient(rgb(255 255 255 / 0.2) 1px, transparent 1.5px);
+    background-size: auto, 46px 46px, 29px 29px;
+    background-position: 0 0, 7px 11px, 19px 3px;
   }
-  .world-zine:hover {
-    rotate: -0.5deg;
-  }
-  .tape {
-    position: absolute;
-    top: -0.9rem;
-    left: 1.5rem;
-    width: 7rem;
-    height: 1.7rem;
-    rotate: -4deg;
-    background: var(--tape);
-    border-inline: 2px dashed rgb(255 255 255 / 0.5);
-  }
-  .hand {
-    font-family: var(--font-hand);
-    font-size: 1.5rem;
-    line-height: 1.1;
-    color: #5b2bb5;
-  }
-  .zine-title {
-    font-family: var(--font-type);
-    font-size: clamp(2rem, 5vw, 2.6rem);
-    line-height: 1.1;
-  }
-  .zine-desc {
+  .portal-body {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
     flex: 1;
+    padding: 1.25rem 1.3rem 1.5rem;
+  }
+  .portal-text {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .once {
     font-family: var(--font-read);
     font-style: italic;
-    font-size: 1.1rem;
-    color: #574a3a;
+    color: var(--term-dim);
   }
-  .world-zine .count {
-    margin-top: 0.75rem;
+  .portal-title {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 1.9rem;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    color: #fff;
   }
-  .doodle {
+  .portal-desc {
+    font-family: var(--font-read);
+    line-height: 1.55;
+    color: #cfc3ea;
+  }
+  .portal-count {
+    margin-top: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--term-prompt);
+  }
+  .portal-enter {
+    justify-self: start;
+    margin-top: 0.6rem;
+    padding: 0.3rem 0.7rem;
+    border: 2px solid #e9e0ff;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .world-portal:hover .portal-enter {
+    background: var(--pop);
+    border-color: var(--pop);
+    color: var(--pop-text);
+  }
+  .world-portal:hover .portal-title {
+    color: var(--term-prompt);
+  }
+
+  /* Das Tor: ineinanderliegende Rahmen, die sich langsam drehen */
+  .portal-gate {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(6.5rem, 20vw, 9rem);
+    aspect-ratio: 1;
+  }
+  .portal-gate i {
     position: absolute;
-    right: 1.25rem;
-    bottom: 0.75rem;
-    font-size: 3rem;
-    color: #5b2bb5;
-    opacity: 0.35;
-    rotate: 15deg;
-    transition: rotate 0.3s ease, opacity 0.3s ease;
+    border: 2px solid rgb(199 178 255 / 0.7);
+    border-radius: 30%;
+    animation: spin 28s linear infinite;
+    transition: border-color 0.3s ease;
   }
-  .world-zine:hover .doodle {
-    rotate: -10deg;
-    opacity: 0.8;
+  .portal-gate i:nth-child(1) {
+    inset: 0;
+  }
+  .portal-gate i:nth-child(2) {
+    inset: 14%;
+    animation-direction: reverse;
+    animation-duration: 20s;
+  }
+  .portal-gate i:nth-child(3) {
+    inset: 28%;
+    animation-duration: 14s;
+  }
+  .portal-gate i:nth-child(4) {
+    inset: 40%;
+    animation-direction: reverse;
+    animation-duration: 9s;
+  }
+  .portal-gate b {
+    width: 14%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 18px 6px rgb(143 108 255 / 0.9);
+  }
+  .world-portal:hover .portal-gate i {
+    border-color: var(--pop);
+  }
+  @keyframes spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+  @media (max-width: 26rem) {
+    .portal-body {
+      grid-template-columns: 1fr;
+    }
+    .portal-gate {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      width: 4.5rem;
+      opacity: 0.6;
+    }
   }
 </style>

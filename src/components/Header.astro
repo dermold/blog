@@ -22,8 +22,13 @@ const isActive = (href: string) => {
 <header class="site-header">
   <div class="container inner">
     <a class="logo" href={url('')}>
-      <span class="logo-mark" aria-hidden="true">S</span>
-      <span class="logo-text">{SITE_TITLE}<span class="logo-cursor" aria-hidden="true">_</span></span>
+      <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="1" y="1" width="30" height="30" rx="4" class="mark-bg"></rect>
+        <path d="M21 9.5h-7.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H10" class="mark-s"></path>
+        <rect x="23" y="21" width="4.5" height="3.5" class="mark-cursor"></rect>
+      </svg>
+      <span class="logo-text">sebastian<span class="logo-suffix">/blog</span></span>
+      <span class="visually-hidden">{SITE_TITLE}</span>
     </a>
 
     <div class="actions">
@@ -91,25 +96,37 @@ const isActive = (href: string) => {
     margin-right: auto;
   }
   .logo-mark {
-    display: grid;
-    place-items: center;
     width: 2.3rem;
     height: 2.3rem;
-    border: 2px solid var(--ink);
-    background: var(--accent);
-    color: #fff;
-    font-family: var(--font-pixel);
-    font-size: 1.25rem;
-    box-shadow: 3px 3px 0 var(--ink);
-    transform: rotate(-6deg);
-    transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+    filter: drop-shadow(3px 3px 0 var(--ink));
+    transition: transform 0.15s ease, filter 0.15s ease;
   }
   .logo:hover .logo-mark {
-    transform: rotate(6deg) scale(1.08);
+    transform: translate(-1px, -1px);
+    filter: drop-shadow(4px 4px 0 var(--ink));
   }
-  .logo-cursor {
-    color: var(--accent);
+  .mark-bg {
+    fill: var(--accent);
+    stroke: var(--ink);
+    stroke-width: 2;
+  }
+  .mark-s {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3.2;
+    stroke-linecap: square;
+  }
+  .mark-cursor {
+    fill: var(--pop);
+  }
+  .logo:hover .mark-cursor {
     animation: blink 1s steps(2) infinite;
+  }
+  .logo-suffix {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.9em;
+    color: var(--accent);
   }
   .nav ul {
     display: flex;

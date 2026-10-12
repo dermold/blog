@@ -34,8 +34,8 @@ const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[
             <b>$</b> ls ~/{category.folder} <span class="cursor" />
           </p>
         ) : (
-          <p class="flavor flavor-zine" aria-hidden="true">
-            ~ zum Abtauchen ~
+          <p class="flavor flavor-portal" aria-hidden="true">
+            Es war einmal …
           </p>
         )
       }
@@ -96,9 +96,10 @@ const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[
   .flavor-term b {
     color: var(--term-prompt);
   }
-  .flavor-zine {
-    font-family: var(--font-hand);
-    font-size: 1.6rem;
+  .flavor-portal {
+    font-family: var(--font-read);
+    font-style: italic;
+    font-size: 1.25rem;
     color: var(--accent);
   }
 </style>

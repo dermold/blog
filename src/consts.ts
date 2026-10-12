@@ -5,7 +5,7 @@ export const AUTHOR = 'Sebastian';
 
 // Kategorien: Der Schlüssel (links) wird im Beitrag unter "category" eingetragen.
 // "look" bestimmt das Aussehen der Beiträge dieser Kategorie:
-//   'terminal' = wie ein Terminal-Log, 'zine' = wie ein selbstgemachtes Heft.
+//   'terminal' = wie ein Terminal-Log, 'portal' = wie ein Tor in eine andere Welt.
 // "folder" ist der Ordnername, der im Terminal-Look angezeigt wird.
 export const CATEGORIES = {
   persoenliches: {
@@ -19,7 +19,7 @@ export const CATEGORIES = {
     name: 'Geschichten',
     description: 'Erzählungen, Kurzgeschichten und alles Ausgedachte.',
     emoji: '📖',
-    look: 'zine',
+    look: 'portal',
     folder: 'geschichten',
   },
 } as const;

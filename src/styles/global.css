@@ -19,25 +19,16 @@
   --hard: 4px 4px 0 var(--ink);
   --hard-lg: 7px 7px 0 var(--ink);
 
-  /* Terminal (Persönliches) – immer dunkel */
+  /* Dunkle Flächen für Terminal (Persönliches) und Portal (Geschichten) */
   --term-bg: #140b22;
   --term-bar: #22143a;
   --term-text: #ddd0ff;
   --term-dim: #8f80ad;
   --term-prompt: #c6f24e;
 
-  /* Zine (Geschichten) – immer Papier */
-  --paper: #f5eddc;
-  --paper-ink: #2b2218;
-  --paper-line: #e4d7bd;
-  --tape: rgb(170 140 240 / 0.6);
-
   --font-ui: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-read: 'Lora', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
-  --font-pixel: 'Silkscreen', var(--font-mono);
-  --font-type: 'Special Elite', 'Courier New', monospace;
-  --font-hand: 'Caveat', 'Segoe Print', cursive;
 
   --radius: 6px;
   --radius-sm: 4px;
@@ -61,7 +52,6 @@
   --accent-contrast: #100a1a;
   --hard: 4px 4px 0 #5b2bb5;
   --hard-lg: 7px 7px 0 #5b2bb5;
-  --paper: #ebe1cb;
   --term-bg: #0b0613;
   color-scheme: dark;
 }
@@ -177,30 +167,33 @@ h4 {
 /* Kleine Überschrift über Titeln, im Pixel-Stil */
 .eyebrow {
   display: inline-block;
-  font-family: var(--font-pixel);
+  font-family: var(--font-mono);
   font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--accent);
   margin-bottom: 0.75rem;
 }
 
 .eyebrow::before {
-  content: '▶ ';
+  content: '// ';
+  opacity: 0.6;
 }
 
-/* Schräger Aufkleber */
+/* Aufkleber */
 .sticker {
   display: inline-block;
-  padding: 0.25rem 0.6rem;
+  padding: 0.2rem 0.55rem;
   border: 2px solid var(--ink);
   background: var(--pop);
   color: var(--pop-text);
-  font-family: var(--font-pixel);
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  box-shadow: 3px 3px 0 var(--ink);
-  transform: rotate(-4deg);
+  letter-spacing: 0.06em;
+  box-shadow: 2px 2px 0 var(--ink);
 }
 
 .chip {
@@ -334,12 +327,11 @@ a.chip:hover {
 }
 
 .empty::before {
-  content: '[ … lädt … ]';
+  content: '// leer';
   display: block;
   margin-bottom: 0.5rem;
-  font-family: var(--font-pixel);
   color: var(--accent);
-  animation: blink 1.2s steps(2) infinite;
+  font-weight: 700;
 }
 
 /* Blinkender Cursor hinter Terminal-Zeilen */
@@ -371,6 +363,89 @@ a.chip:hover {
 .js .reveal.is-visible {
   opacity: 1;
   transform: none;
+}
+
+/* ==========================================================
+   Portal: Übergang in die Welt der Geschichten
+   ========================================================== */
+@property --hole {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+/* Beim Klick: ein Strudel wächst vom Tor aus über die Seite */
+.portal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--portal-x) var(--portal-y),
+    #ffffff 0,
+    #c7b2ff 4%,
+    #5b2bb5 16%,
+    #1f0f3d 38%,
+    #07030d 70%
+  );
+  clip-path: circle(0 at var(--portal-x) var(--portal-y));
+  animation: portal-in 0.9s cubic-bezier(0.45, 0, 0.75, 0.1) forwards;
+}
+
+@keyframes portal-in {
+  to {
+    clip-path: circle(150% at var(--portal-x) var(--portal-y));
+  }
+}
+
+/* ... und die Seite wird dabei hineingesogen */
+.portal-active body {
+  overflow: hidden;
+}
+
+.portal-active main {
+  transform-origin: var(--portal-x) calc(var(--portal-page-y) - 4.25rem);
+  transform: scale(2.4) rotate(8deg);
+  filter: blur(4px);
+  transition: transform 0.9s cubic-bezier(0.45, 0, 0.75, 0.1), filter 0.9s ease-in;
+}
+
+.portal-active .site-header,
+.portal-active .site-footer {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Auf der Zielseite öffnet sich das Portal wieder */
+.portal-arrive body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, #c7b2ff 0, #5b2bb5 18%, #1f0f3d 45%, #07030d 80%);
+  -webkit-mask-image: radial-gradient(circle at 50% 40%, transparent var(--hole), #000 calc(var(--hole) + 3%));
+  mask-image: radial-gradient(circle at 50% 40%, transparent var(--hole), #000 calc(var(--hole) + 3%));
+  animation: portal-open 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.portal-arrive main {
+  animation: portal-land 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes portal-open {
+  to {
+    --hole: 160%;
+    visibility: hidden;
+  }
+}
+
+@keyframes portal-land {
+  from {
+    transform: scale(0.8) rotate(-4deg);
+    filter: blur(6px);
+    opacity: 0;
+  }
 }
 
 /* ==========================================================
@@ -502,5 +577,9 @@ a.chip:hover {
   .js .reveal {
     opacity: 1;
     transform: none;
+  }
+  .portal-overlay,
+  .portal-arrive body::after {
+    display: none;
   }
 }
