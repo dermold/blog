@@ -6,8 +6,8 @@ description: |-
 date: 2026-10-12
 category: geschichten
 tags:
-  - '"Geschichten"'
-draft: true
+  - Geschichten
+draft: false
 ---
 
 Es war ein regnerischer Samstagabend im kleinen Ort Namens Cloverfield, es war eine kleine Gemeinde, die doch nur zu oft vom Pech verfolgt wurde. Ganze 563 Einwohner zählt dieses kleine Örtchen am gefühlten Rande der Welt. Vor einem Jahr waren es noch doppelt so viele und dem Jahr davor dreimal so viele. Der Bürgermeister versucht sein Bestes, um sein Versagen zu verstecken, aber so oft du auch versuchst, Verdorbenes in Schönfärberei zu kleiden, bleibt es am Ende doch nur Verdorben. Während der Regen gegen die Fenster peitscht, der Wind durch die Bäume jagt und Ich verträumt hinaus schaute, holte mich das herausspringen des Toast zurück in die Realität. Dad war wieder mal den ganzen Tag im Keller, während sich Mom um alles kümmert außer um uns. Lieber verschwand sie über den Tag zu Ihrer Freundin Jeanette. Sie nannte es immer Ihre „Fünf-Minuten Erholung“. Und auch wenn sie Ihr bestes gegeben hat, es zu verbergen, war es ein offenes Geheimnis in der Stadt, das Mom sich dort einen Schuss setzt. Die „Junkie Braut von Cloverfield“ wurde sie, pischperten die Leute untereinander. Sie lebt aber so in Ihrer Welt, das Sie es niemals anerkennen würde. Auch heute war Sie, nachdem Sie einen Nervenzusammenbruch hatte, weil Sie es nicht Pünktlich aus dem Bett geschafft hat, um Ihre Lieblingssendung „Geheimnisse suchen die Liebe“ zu schauen, wütend aus dem Haus gestürmt, um zu Jeanette zu rennen, um sich die nächste Ladung in den Arm zu Jagen. Zurückgelassen hat sie eine völlig verwüstete Wohnung, ein kaputtes Fenster und einen wiederholt verängstigten Jungen hinterlassen. Zwischen einem völlig abwesenden Vater, der in seine Projekte im Keller vertieft ist und nicht mitbekommt, wie seine Familie auseinander fällt und sich seine Frau immer mehr in den Drogen verliert, und einer Tochter, die irgendwie versucht, nicht durchzudrehen, findet sich dieser eine kleine Hoffnungsschimmer. Mein kleiner Bruder John.

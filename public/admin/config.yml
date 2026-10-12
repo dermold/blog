@@ -88,15 +88,15 @@ collections:
         default: persoenliches
       - name: tags
         label: Tags
-        hint: Schlagwörter, z. B. "Reisen" oder "Kurzgeschichte".
+        hint: Schlagwörter ohne Anführungszeichen, z. B. Reisen oder Kurzgeschichte.
         widget: list
         default: []
         required: false
       - name: draft
         label: Entwurf
-        hint: Solange der Haken gesetzt ist, ist der Beitrag nicht öffentlich sichtbar. Zum Veröffentlichen den Haken entfernen und speichern.
+        hint: Haken setzen, wenn der Beitrag noch nicht öffentlich sichtbar sein soll. Ohne Haken geht er beim Speichern direkt online.
         widget: boolean
-        default: true
+        default: false
       - name: body
         label: Text
         widget: markdown

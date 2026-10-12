@@ -10,7 +10,7 @@ im Browser erstellen, bearbeiten und löschen kannst (auch am Handy).
 - Anmelden mit **„Mit Zugriffstoken anmelden“** und deinem persönlichen GitHub-Zugriffstoken.
   Nur wer Schreibrechte auf dieses Repository hat, kann sich anmelden.
 - Jedes Speichern landet direkt auf GitHub, nach ein bis zwei Minuten ist die Seite aktualisiert.
-- Neue Beiträge sind zuerst **Entwürfe**. Zum Veröffentlichen den Haken bei „Entwurf“ entfernen und speichern.
+- Neue Beiträge gehen beim Speichern **direkt online**. Soll ein Beitrag noch privat bleiben, den Haken bei „Entwurf“ setzen.
 - Die Einstellungen des Admin-Bereichs stehen in `public/admin/config.yml`.
 
 ## Einen neuen Beitrag als Datei schreiben
