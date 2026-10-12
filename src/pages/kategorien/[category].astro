@@ -28,6 +28,17 @@ const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[
       <span class="eyebrow">Kategorie</span>
       <h1><span aria-hidden="true">{category.emoji}</span> {category.name}</h1>
       <p>{category.description}</p>
+      {
+        category.look === 'terminal' ? (
+          <p class="flavor flavor-term" aria-hidden="true">
+            <b>$</b> ls ~/{category.folder} <span class="cursor" />
+          </p>
+        ) : (
+          <p class="flavor flavor-zine" aria-hidden="true">
+            ~ zum Abtauchen ~
+          </p>
+        )
+      }
     </header>
 
     <nav aria-label="Nach Kategorie filtern" class="filter">
@@ -68,5 +79,26 @@ const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[
 <style>
   .filter {
     margin-bottom: 2rem;
+  }
+  .page-head .flavor {
+    margin-top: 1rem;
+  }
+  .flavor-term {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border: 2px solid var(--ink);
+    background: var(--term-bg);
+    color: var(--term-text);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .flavor-term b {
+    color: var(--term-prompt);
+  }
+  .flavor-zine {
+    font-family: var(--font-hand);
+    font-size: 1.6rem;
+    color: var(--accent);
   }
 </style>

@@ -8,44 +8,138 @@ const posts = await getPosts();
 const latest = posts.slice(0, 6);
 const counts = Object.fromEntries(
   (Object.keys(CATEGORIES) as CategoryKey[]).map((key) => [key, posts.filter((p) => p.data.category === key).length]),
+) as Record<CategoryKey, number>;
+const pad = (n: number) => String(n).padStart(3, '0');
+
+// Pixel-Bild für die Startseite: ein offenes Buch, aus dem ein Pflänzchen wächst.
+// Jedes Zeichen ist ein Pixel, die Farben stehen in "colors".
+const sprite = [
+  '..kkkk....kkkk..',
+  '.kggggk..kllllk.',
+  'kggggggkkllllllk',
+  '.kgggggsslllllk.',
+  '..kkkkksskkkkk..',
+  '.......ss.......',
+  '.......ss.......',
+  '.kkkkkkkkkkkkkk.',
+  'kwwwwwwkkwwwwwwk',
+  'kwpppwwkkwpppwwk',
+  'kwwwwwwkkwwwwwwk',
+  'kwppppwkkwppwwwk',
+  'kwwwwwwkkwwwwwwk',
+  'kkkkkkkkkkkkkkkk',
+  '.kaaaaaaaaaaaak.',
+  '..kkkkkkkkkkkk..',
+];
+const colors: Record<string, string> = {
+  k: '#1a1029',
+  g: '#6fd38a',
+  l: '#d7ff3c',
+  s: '#2f8a4a',
+  w: '#f5eddc',
+  p: '#8f6cff',
+  a: '#5b2bb5',
+};
+const pixels = sprite.flatMap((row, y) =>
+  [...row].flatMap((c, x) => (colors[c] ? [{ x, y, fill: colors[c] }] : [])),
 );
+
+const ticker = ['Gedanken', 'Geschichten', 'Erlebnisse', 'Erzählungen', 'Das Leben', 'Ausgedachtes'];
 ---
 
 <BaseLayout>
   <section class="hero">
-    <div class="container">
-      <span class="eyebrow">Willkommen</span>
-      <h1>
-        Hallo, ich bin Sebastian.<br />
-        Hier schreibe ich über <span class="highlight">das Leben</span> und erzähle{' '}<span class="highlight">Geschichten</span>.
-      </h1>
-      <p class="lead">
-        Ein Ort für persönliche Gedanken, kleine und große Erlebnisse und Erzählungen, die ich mit dir teilen möchte.
-      </p>
-      <div class="hero-actions">
-        <a class="button" href={url('blog/')}>Zu den Beiträgen →</a>
-        <a class="button ghost" href={url('ueber-mich/')}>Über mich</a>
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <p class="hud" aria-label={`${posts.length} Beiträge bisher`}>
+          <span>1UP SEBASTIAN</span>
+          <span>★ {pad(posts.length)}</span>
+          <span class="hearts" aria-hidden="true">♥♥♥</span>
+        </p>
+        <span class="eyebrow press-start">Press Start</span>
+        <h1>
+          Hallo, ich bin Sebastian.
+          <span class="line">
+            Hier schreibe ich über <span class="tag-term">das Leben</span> und erzähle{' '}
+            <span class="tag-zine">Geschichten</span>.
+          </span>
+        </h1>
+        <p class="lead">
+          Ein Ort für persönliche Gedanken, kleine und große Erlebnisse und Erzählungen, die ich mit dir teilen möchte.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href={url('blog/')}>Zu den Beiträgen →</a>
+          <a class="button ghost" href={url('ueber-mich/')}>Über mich</a>
+        </div>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-frame box">
+          <svg class="sprite" viewBox="0 0 16 16" shape-rendering="crispEdges">
+            {pixels.map((p) => <rect x={p.x} y={p.y} width="1" height="1" fill={p.fill} />)}
+          </svg>
+          <span class="sparkle s1">✦</span>
+          <span class="sparkle s2">✦</span>
+          <span class="sparkle s3">+</span>
+        </div>
+        <span class="sticker new">★ Neu hier?</span>
       </div>
     </div>
-    <div class="blob blob-1" aria-hidden="true"></div>
-    <div class="blob blob-2" aria-hidden="true"></div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="categories">
+  <div class="ticker-wrap" aria-hidden="true">
+    <div class="ticker">
+      <div class="ticker-track">
         {
-          (Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[CategoryKey]][]).map(([key, cat]) => (
-            <a class="category" href={url(`kategorien/${key}/`)}>
-              <span class="emoji" aria-hidden="true">{cat.emoji}</span>
-              <span class="name">{cat.name}</span>
-              <span class="desc">{cat.description}</span>
-              <span class="count">
-                {counts[key]} {counts[key] === 1 ? 'Beitrag' : 'Beiträge'}
-              </span>
-            </a>
+          [0, 1].map(() => (
+            <span>
+              {ticker.map((word) => (
+                <>
+                  {word} <b>✦</b>{' '}
+                </>
+              ))}
+            </span>
           ))
         }
+      </div>
+    </div>
+  </div>
+
+  <section class="section worlds-section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Wähle deine Welt</h2>
+      </div>
+      <div class="worlds">
+        <a class="world world-term reveal" href={url('kategorien/persoenliches/')}>
+          <span class="sticker world-no">Welt 1</span>
+          <span class="term-bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            sebastian@blog: ~/{CATEGORIES.persoenliches.folder}
+          </span>
+          <span class="term-body">
+            <span><b>$</b> cd ~/{CATEGORIES.persoenliches.folder}</span>
+            <span><b>$</b> cat README</span>
+            <span class="out name">{CATEGORIES.persoenliches.name}</span>
+            <span class="out"># {CATEGORIES.persoenliches.description}</span>
+            <span><b>$</b> ls | wc -l</span>
+            <span class="out count">
+              {counts.persoenliches} {counts.persoenliches === 1 ? 'Eintrag' : 'Einträge'}
+            </span>
+            <span><b>$</b> <span class="cursor"></span></span>
+          </span>
+        </a>
+
+        <a class="world world-zine reveal" href={url('kategorien/geschichten/')}>
+          <span class="tape"></span>
+          <span class="hand">Welt 2 ~</span>
+          <span class="zine-title">{CATEGORIES.geschichten.name}</span>
+          <span class="zine-desc">{CATEGORIES.geschichten.description}</span>
+          <span class="hand count">
+            {counts.geschichten} {counts.geschichten === 1 ? 'Erzählung' : 'Erzählungen'} →
+          </span>
+          <span class="doodle">✎</span>
+        </a>
       </div>
     </div>
   </section>
@@ -54,13 +148,13 @@ const counts = Object.fromEntries(
     <div class="container">
       <div class="section-head">
         <h2>Neueste Beiträge</h2>
-        <a href={url('blog/')}>Alle ansehen →</a>
+        <a href={url('blog/')}>alle ansehen →</a>
       </div>
       {
         latest.length > 0 ? (
           <ul class="post-grid">
             {latest.map((post) => (
-              <li>
+              <li class="reveal">
                 <PostCard post={post} />
               </li>
             ))}
@@ -74,28 +168,89 @@ const counts = Object.fromEntries(
 </BaseLayout>
 
 <style>
+  /* ---------- Hero ---------- */
   .hero {
-    position: relative;
-    overflow: hidden;
-    padding-block: clamp(3rem, 10vw, 6.5rem) clamp(2rem, 6vw, 4rem);
+    padding-block: clamp(2.5rem, 7vw, 5rem) clamp(2.5rem, 6vw, 4rem);
   }
-  .hero .container {
-    position: relative;
-    z-index: 1;
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+  .hud {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    margin: 0 0 1.75rem;
+    padding: 0.45rem 0.8rem;
+    border: 2px solid var(--ink);
+    background: var(--term-bg);
+    color: var(--term-text);
+    font-family: var(--font-pixel);
+    font-size: 0.75rem;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .hearts {
+    color: #ff6b8b;
+    letter-spacing: 0.1em;
+  }
+  .press-start {
+    display: block;
+    width: fit-content;
+    animation: blink 1.4s steps(2) infinite;
   }
   h1 {
-    font-size: clamp(2rem, 6vw, 3.6rem);
-    font-weight: 900;
-    max-width: 18em;
-    margin: 0 0 1.25rem;
+    font-size: clamp(2.3rem, 6vw, 4.2rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    margin: 0 0 1.5rem;
   }
-  .highlight {
-    color: var(--accent);
-    background: linear-gradient(transparent 62%, var(--accent-soft) 62%);
-    padding-inline: 0.1em;
+  h1 .line {
+    display: block;
+    margin-top: 0.15em;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  /* "das Leben" als Terminal-Schnipsel, "Geschichten" als Papierzettel */
+  .tag-term,
+  .tag-zine {
+    display: inline-block;
+    padding: 0 0.25em;
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    line-height: 1.15;
+    transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .tag-term {
+    background: var(--term-bg);
+    color: var(--term-prompt);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.85em;
+    letter-spacing: -0.04em;
+    rotate: -2deg;
+  }
+  .tag-term::before {
+    content: '>';
+    color: var(--term-dim);
+    margin-right: 0.15em;
+  }
+  .tag-zine {
+    background: var(--paper);
+    color: #5b2bb5;
+    font-family: var(--font-type);
+    font-weight: 400;
+    font-size: 0.9em;
+    letter-spacing: -0.02em;
+    rotate: 1.5deg;
+  }
+  .tag-term:hover,
+  .tag-zine:hover {
+    transform: scale(1.06) rotate(-2deg);
   }
   .lead {
-    max-width: 36rem;
+    max-width: 34rem;
     font-size: 1.2rem;
     color: var(--text-muted);
     margin: 0 0 2rem;
@@ -103,72 +258,274 @@ const counts = Object.fromEntries(
   .hero-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 1rem;
   }
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.5;
-    pointer-events: none;
+
+  .hero-art {
+    position: relative;
+    justify-self: center;
+    width: min(100%, 22rem);
   }
-  .blob-1 {
-    width: 22rem;
-    height: 22rem;
-    right: -6rem;
-    top: -4rem;
-    background: var(--accent-soft);
-    animation: float 12s ease-in-out infinite;
+  .art-frame {
+    position: relative;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    background-color: var(--accent);
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px);
+    background-size: 1.375rem 1.375rem;
+    box-shadow: var(--hard-lg);
+    rotate: 2deg;
   }
-  .blob-2 {
-    width: 14rem;
-    height: 14rem;
-    right: 18%;
-    bottom: -5rem;
-    background: color-mix(in srgb, var(--accent) 30%, transparent);
-    animation: float 15s ease-in-out infinite reverse;
+  .sprite {
+    width: 70%;
+    image-rendering: pixelated;
+    animation: hop 1.6s steps(2) infinite;
+    filter: drop-shadow(6px 6px 0 rgb(0 0 0 / 0.3));
   }
-  @keyframes float {
+  @keyframes hop {
     50% {
-      transform: translate(-1.5rem, 1.5rem) scale(1.08);
+      transform: translateY(-6%);
     }
   }
-  .categories {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-    gap: 1.25rem;
+  .sparkle {
+    position: absolute;
+    color: var(--pop);
+    font-family: var(--font-pixel);
+    font-size: 1.6rem;
+    animation: twinkle 2.4s steps(3) infinite;
   }
-  .category {
+  .s1 {
+    top: 10%;
+    left: 12%;
+  }
+  .s2 {
+    top: 22%;
+    right: 10%;
+    font-size: 1rem;
+    animation-delay: 0.8s;
+  }
+  .s3 {
+    bottom: 14%;
+    left: 18%;
+    animation-delay: 1.6s;
+  }
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.2;
+      transform: scale(0.6);
+    }
+  }
+  .new {
+    position: absolute;
+    right: -0.75rem;
+    bottom: -1rem;
+    font-size: 0.85rem;
+    animation: wobble 3s ease-in-out infinite;
+  }
+  @keyframes wobble {
+    50% {
+      transform: rotate(4deg) scale(1.05);
+    }
+  }
+
+  @media (max-width: 52rem) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .hero-art {
+      width: min(70%, 16rem);
+      order: -1;
+    }
+  }
+
+  /* ---------- Laufband ---------- */
+  .ticker-wrap {
+    overflow: hidden;
+    padding-block: 1rem;
+    margin-bottom: 1rem;
+  }
+  .ticker {
+    overflow: hidden;
+    border-block: 2px solid var(--ink);
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-pixel);
+    font-size: 1rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+    rotate: -1deg;
+    margin-inline: -1rem;
+  }
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    padding-block: 0.7rem;
+    animation: marquee 28s linear infinite;
+  }
+  .ticker-track > span {
+    padding-right: 1rem;
+  }
+  .ticker b {
+    color: var(--pop);
+    margin-inline: 0.75rem;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ---------- Welten ---------- */
+  .worlds {
     display: grid;
-    gap: 0.35rem;
-    padding: 1.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 2.25rem;
+  }
+  .world {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid var(--ink);
     border-radius: var(--radius);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    color: var(--text);
+    box-shadow: var(--hard);
     text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1), box-shadow 0.2s ease, opacity 0.6s ease;
   }
-  .category:hover {
-    color: var(--text);
-    transform: translateY(-4px) rotate(-0.5deg);
-    box-shadow: var(--shadow-hover);
+  .world:hover {
+    transform: translate(-5px, -5px);
+    box-shadow: var(--hard-lg);
   }
-  .emoji {
-    font-size: 2rem;
+  .world-no {
+    position: absolute;
+    top: -0.9rem;
+    right: 1rem;
+    z-index: 1;
   }
-  .name {
-    font-size: 1.4rem;
-    font-weight: 900;
+
+  .world-term {
+    background: var(--term-bg);
+    color: var(--term-text);
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    overflow: visible;
   }
-  .desc {
-    color: var(--text-muted);
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    background: var(--term-bar);
+    border-bottom: 2px solid var(--ink);
+    border-radius: var(--radius) var(--radius) 0 0;
+    font-size: 0.78rem;
+    color: var(--term-dim);
   }
-  .count {
-    margin-top: 0.5rem;
-    font-weight: 800;
-    font-size: 0.9rem;
-    color: var(--accent);
+  .dots {
+    display: flex;
+    gap: 0.35rem;
+  }
+  .dots i {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 1.5px solid #000;
+    border-radius: 50%;
+    background: #ff6b8b;
+  }
+  .dots i:nth-child(2) {
+    background: var(--pop);
+  }
+  .dots i:nth-child(3) {
+    background: #8f6cff;
+  }
+  .term-body {
+    display: grid;
+    gap: 0.3rem;
+    padding: 1.25rem 1.3rem 1.5rem;
+  }
+  .term-body b {
+    color: var(--term-prompt);
+  }
+  .term-body .out {
+    color: var(--term-dim);
+    padding-left: 1.1rem;
+  }
+  .term-body .name {
+    color: #fff;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 1.9rem;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+  .term-body .count {
+    color: var(--term-prompt);
+  }
+  .world-term:hover .name {
+    color: var(--term-prompt);
+  }
+
+  .world-zine {
+    gap: 0.5rem;
+    padding: 2.25rem 1.75rem 1.75rem;
+    color: var(--paper-ink);
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(transparent 0 1.9rem, var(--paper-line) 1.9rem calc(1.9rem + 1px));
+    rotate: 1deg;
+  }
+  .world-zine:hover {
+    rotate: -0.5deg;
+  }
+  .tape {
+    position: absolute;
+    top: -0.9rem;
+    left: 1.5rem;
+    width: 7rem;
+    height: 1.7rem;
+    rotate: -4deg;
+    background: var(--tape);
+    border-inline: 2px dashed rgb(255 255 255 / 0.5);
+  }
+  .hand {
+    font-family: var(--font-hand);
+    font-size: 1.5rem;
+    line-height: 1.1;
+    color: #5b2bb5;
+  }
+  .zine-title {
+    font-family: var(--font-type);
+    font-size: clamp(2rem, 5vw, 2.6rem);
+    line-height: 1.1;
+  }
+  .zine-desc {
+    flex: 1;
+    font-family: var(--font-read);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #574a3a;
+  }
+  .world-zine .count {
+    margin-top: 0.75rem;
+  }
+  .doodle {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 0.75rem;
+    font-size: 3rem;
+    color: #5b2bb5;
+    opacity: 0.35;
+    rotate: 15deg;
+    transition: rotate 0.3s ease, opacity 0.3s ease;
+  }
+  .world-zine:hover .doodle {
+    rotate: -10deg;
+    opacity: 0.8;
   }
 </style>

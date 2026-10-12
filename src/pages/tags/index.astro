@@ -31,9 +31,18 @@ const tags = collectTags(await getPosts());
 </BaseLayout>
 
 <style>
+  .tags {
+    gap: 0.9rem;
+  }
   .tags .chip {
     font-size: 1rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.9rem;
+  }
+  .tags li:nth-child(3n + 1) .chip {
+    rotate: -1.5deg;
+  }
+  .tags li:nth-child(3n + 2) .chip {
+    rotate: 1deg;
   }
   .count {
     display: inline-grid;
@@ -41,9 +50,9 @@ const tags = collectTags(await getPosts());
     min-width: 1.5rem;
     height: 1.5rem;
     padding-inline: 0.35rem;
-    border-radius: 999px;
-    background: var(--surface);
-    color: var(--text-muted);
-    font-size: 0.8rem;
+    border-radius: 2px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-size: 0.75rem;
   }
 </style>

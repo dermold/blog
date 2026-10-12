@@ -26,6 +26,7 @@ import { url } from '../lib/utils';
     </div>
 
     <section class="facts">
+      <span class="sticker stats" aria-hidden="true">Stats</span>
       <h2>Ein paar Dinge über mich</h2>
       <ul>
         <li><span aria-hidden="true">✍️</span> Ich schreibe am liebsten …</li>
@@ -52,12 +53,21 @@ import { url } from '../lib/utils';
     place-items: center;
     width: 7rem;
     height: 7rem;
-    border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%;
-    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 50%, #ff9ad5));
+    border: 3px solid var(--ink);
+    background-color: var(--accent);
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.1) 1px, transparent 1px);
+    background-size: 0.875rem 0.875rem;
     color: #fff;
-    font-size: 3rem;
-    font-weight: 900;
-    box-shadow: var(--shadow-hover);
+    font-family: var(--font-pixel);
+    font-size: 3.5rem;
+    box-shadow: var(--hard-lg);
+    rotate: -4deg;
+    transition: rotate 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .avatar:hover {
+    rotate: 6deg;
   }
   @media (max-width: 36rem) {
     .intro {
@@ -65,11 +75,18 @@ import { url } from '../lib/utils';
     }
   }
   .facts {
-    margin-top: 3rem;
+    position: relative;
+    margin-top: 3.5rem;
     padding: 1.75rem;
+    border: 2px solid var(--ink);
     border-radius: var(--radius);
     background: var(--surface);
-    border: 1px solid var(--border);
+    box-shadow: var(--hard);
+  }
+  .stats {
+    position: absolute;
+    top: -0.9rem;
+    right: 1.25rem;
   }
   .facts h2 {
     margin: 0 0 1rem;

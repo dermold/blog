@@ -30,16 +30,22 @@
     place-items: center;
     width: 2.6rem;
     height: 2.6rem;
-    border-radius: 999px;
-    border: 1px solid var(--border);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-sm);
     background: var(--surface);
     color: var(--text);
+    box-shadow: 2px 2px 0 var(--ink);
     cursor: pointer;
-    transition: transform 0.2s ease, color 0.2s ease;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
   }
   .theme-toggle:hover {
-    color: var(--accent);
-    transform: rotate(-15deg);
+    color: var(--pop-text);
+    background: var(--pop);
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .theme-toggle:hover svg {
+    transform: rotate(-20deg);
   }
   svg {
     width: 1.25rem;
@@ -50,6 +56,7 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     grid-area: 1 / 1;
+    transition: transform 0.2s ease;
   }
   .moon {
     display: none;

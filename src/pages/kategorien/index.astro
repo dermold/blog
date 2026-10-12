@@ -18,8 +18,8 @@ const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[
         entries.map(([key, cat]) => {
           const count = posts.filter((p) => p.data.category === key).length;
           return (
-            <li>
-              <a href={url(`kategorien/${key}/`)}>
+            <li class="reveal">
+              <a class={`look-${cat.look}`} href={url(`kategorien/${key}/`)}>
                 <span class="emoji" aria-hidden="true">{cat.emoji}</span>
                 <span>
                   <strong>{cat.name}</strong>
@@ -38,7 +38,7 @@ const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[
 <style>
   .list {
     display: grid;
-    gap: 1rem;
+    gap: 1.5rem;
     padding: 0;
     margin: 0;
     list-style: none;
@@ -49,38 +49,64 @@ const entries = Object.entries(CATEGORIES) as [CategoryKey, (typeof CATEGORIES)[
     align-items: center;
     gap: 1.25rem;
     padding: 1.5rem;
+    border: 2px solid var(--ink);
     border-radius: var(--radius);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    color: var(--text);
+    box-shadow: var(--hard);
     text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.18s cubic-bezier(0.3, 1.4, 0.5, 1), box-shadow 0.18s ease;
   }
   a:hover {
-    color: var(--text);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-hover);
+    transform: translate(-4px, -4px);
+    box-shadow: var(--hard-lg);
+  }
+  .look-terminal {
+    background: var(--term-bg);
+    color: var(--term-text);
+    font-family: var(--font-mono);
+  }
+  .look-terminal strong {
+    font-family: var(--font-ui);
+    color: #fff;
+  }
+  .look-terminal strong::before {
+    content: '~/';
+    color: var(--term-prompt);
+  }
+  .look-terminal .desc {
+    color: var(--term-dim);
+  }
+  .look-zine {
+    background: var(--paper);
+    color: var(--paper-ink);
+    rotate: 0.5deg;
+  }
+  .look-zine strong {
+    font-family: var(--font-type);
+    font-weight: 400;
+  }
+  .look-zine .desc {
+    font-family: var(--font-read);
+    font-style: italic;
+    color: #574a3a;
   }
   .emoji {
     font-size: 2.25rem;
   }
   strong {
     display: block;
-    font-size: 1.3rem;
-  }
-  .desc {
-    color: var(--text-muted);
+    font-size: 1.5rem;
   }
   .count {
     display: grid;
     place-items: center;
-    min-width: 2.5rem;
-    height: 2.5rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
     padding-inline: 0.5rem;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--accent-strong);
-    font-weight: 900;
+    border: 2px solid #1a1029;
+    background: var(--pop);
+    color: var(--pop-text);
+    font-family: var(--font-pixel);
+    box-shadow: 3px 3px 0 #1a1029;
+    rotate: 4deg;
   }
 </style>

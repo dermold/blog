@@ -21,37 +21,97 @@ interface Props {
 const { post, newer, older } = Astro.props;
 const { Content } = await render(post);
 const category = CATEGORIES[post.data.category];
+const categoryUrl = url(`kategorien/${post.data.category}/`);
+const minutes = readingTime(post.body);
+const isoDate = (date: Date) => date.toISOString().slice(0, 10);
+const isTerminal = category.look === 'terminal';
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
-  <article class="container narrow">
-    <header class="post-head">
-      <a class="back" href={url('blog/')}>← Alle Beiträge</a>
-      <a class="chip" href={url(`kategorien/${post.data.category}/`)}>
-        <span aria-hidden="true">{category.emoji}</span>
-        {category.name}
-      </a>
-      <h1>{post.data.title}</h1>
-      <p class="description">{post.data.description}</p>
-      <p class="meta">
-        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-        <span aria-hidden="true">·</span>
-        <span>{readingTime(post.body)} Min. Lesezeit</span>
-        {
-          post.data.updated && (
-            <>
-              <span aria-hidden="true">·</span>
-              <span>aktualisiert am {formatDate(post.data.updated)}</span>
-            </>
-          )
-        }
-      </p>
-      {post.data.draft && <p class="draft">Entwurf – nur lokal sichtbar</p>}
-    </header>
+  <div class="progress" aria-hidden="true"><span></span></div>
 
-    <div class="prose">
+  <article class:list={['container narrow post', `look-${category.look}`]}>
+    <a class="back" href={url('blog/')}>← Alle Beiträge</a>
+
+    {
+      isTerminal ? (
+        <header class="post-head head-term">
+          <div class="bar">
+            <span class="dots" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span>
+              ~/<a href={categoryUrl}>{category.folder}</a>/{post.id}.md
+            </span>
+          </div>
+          <div class="body">
+            <p class="cmd" aria-hidden="true">
+              <b>$</b> cat {post.id}.md
+            </p>
+            <h1>{post.data.title}</h1>
+            <p class="description">{post.data.description}</p>
+            <dl class="log">
+              <div>
+                <dt>datum:</dt>
+                <dd>
+                  <time datetime={post.data.date.toISOString()}>{isoDate(post.data.date)}</time>
+                </dd>
+              </div>
+              <div>
+                <dt>lesezeit:</dt>
+                <dd>{minutes} min</dd>
+              </div>
+              {post.data.updated && (
+                <div>
+                  <dt>aktualisiert:</dt>
+                  <dd>{isoDate(post.data.updated)}</dd>
+                </div>
+              )}
+              <div>
+                <dt>kategorie:</dt>
+                <dd>
+                  <a href={categoryUrl}>{category.name}</a>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </header>
+      ) : (
+        <header class="post-head head-zine">
+          <span class="tape" aria-hidden="true" />
+          <a class="stamp" href={categoryUrl}>
+            <span aria-hidden="true">{category.emoji}</span> {category.name}
+          </a>
+          <h1>{post.data.title}</h1>
+          <p class="description">{post.data.description}</p>
+          <p class="foot">
+            <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+            <span>~ {minutes} Min. Lesezeit ~</span>
+            {post.data.updated && <span>aktualisiert am {formatDate(post.data.updated)}</span>}
+          </p>
+        </header>
+      )
+    }
+
+    {post.data.draft && <p class="draft sticker">Entwurf – nur lokal sichtbar</p>}
+
+    <div class:list={['prose', { dropcap: !isTerminal }]}>
       <Content />
     </div>
+
+    <p class="end" aria-hidden="true">
+      {
+        isTerminal ? (
+          <>
+            [EOF] <b>$</b> <span class="cursor" />
+          </>
+        ) : (
+          '~ Ende ~'
+        )
+      }
+    </p>
 
     {
       post.data.tags.length > 0 && (
@@ -93,78 +153,304 @@ const category = CATEGORIES[post.data.category];
   </article>
 </BaseLayout>
 
-<style>
-  .post-head {
-    padding-block: 2.5rem 2rem;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--border);
+<script>
+  // Lesefortschritt: Balken oben füllt sich beim Lesen des Beitrags.
+  const bar = document.querySelector<HTMLElement>('.progress span');
+  const article = document.querySelector<HTMLElement>('.post');
+  if (bar && article) {
+    let ticking = false;
+    const update = () => {
+      const rect = article.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      const ratio = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 1;
+      bar.style.transform = `scaleX(${ratio})`;
+      ticking = false;
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    window.addEventListener('resize', update);
+    update();
   }
+</script>
+
+<style>
+  .progress {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 60;
+    height: 6px;
+    pointer-events: none;
+  }
+  .progress span {
+    display: block;
+    height: 100%;
+    background: repeating-linear-gradient(90deg, var(--pop) 0 10px, var(--accent) 10px 12px);
+    border-bottom: 2px solid var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
   .back {
     display: block;
     width: fit-content;
-    margin-bottom: 1.5rem;
+    margin-block: 2rem 1.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
     font-weight: 700;
     text-decoration: none;
   }
+  .back:hover {
+    text-decoration: underline;
+  }
+
+  .post-head {
+    position: relative;
+    margin-bottom: 3rem;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    box-shadow: var(--hard-lg);
+  }
   h1 {
+    margin: 0;
     font-size: clamp(2rem, 6vw, 3rem);
-    font-weight: 900;
-    margin: 1rem 0 0.75rem;
   }
   .description {
-    font-size: 1.2rem;
-    color: var(--text-muted);
-    margin: 0 0 1rem;
-  }
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
     margin: 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text-muted);
   }
-  .draft {
-    display: inline-block;
-    margin: 1rem 0 0;
-    padding: 0.3rem 0.8rem;
-    border-radius: 999px;
-    background: #fde68a;
-    color: #713f12;
-    font-weight: 800;
+
+  /* ---------- Terminal-Kopf ---------- */
+  .head-term {
+    overflow: hidden;
+    background: var(--term-bg);
+    color: var(--term-text);
+    font-family: var(--font-mono);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    background: var(--term-bar);
+    border-bottom: 2px solid var(--ink);
+    font-size: 0.8rem;
+    color: var(--term-dim);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .bar a,
+  .log a {
+    color: var(--term-text);
+  }
+  .bar a:hover,
+  .log a:hover {
+    color: var(--term-prompt);
+  }
+  .dots {
+    display: flex;
+    gap: 0.35rem;
+  }
+  .dots i {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 1.5px solid #000;
+    border-radius: 50%;
+    background: #ff6b8b;
+  }
+  .dots i:nth-child(2) {
+    background: var(--pop);
+  }
+  .dots i:nth-child(3) {
+    background: #8f6cff;
+  }
+  .head-term .body {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1.5rem 1.5rem 1.75rem;
+  }
+  .cmd {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--term-dim);
+  }
+  .cmd b,
+  .end b {
+    color: var(--term-prompt);
+  }
+  .head-term h1 {
+    font-family: var(--font-ui);
+    color: #fff;
+  }
+  .head-term .description {
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.85;
+  }
+  .log {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0.25rem 0 0;
     font-size: 0.85rem;
   }
+  .log div {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .log dt {
+    min-width: 7.5rem;
+    color: var(--term-dim);
+  }
+  .log dd {
+    margin: 0;
+    color: var(--term-prompt);
+  }
+
+  /* ---------- Zine-Kopf ---------- */
+  .head-zine {
+    display: grid;
+    gap: 1rem;
+    padding: 2.5rem 1.75rem 1.75rem;
+    color: var(--paper-ink);
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(transparent 0 1.9rem, var(--paper-line) 1.9rem calc(1.9rem + 1px));
+    rotate: -0.6deg;
+  }
+  .tape {
+    position: absolute;
+    top: -0.9rem;
+    left: 50%;
+    width: 8rem;
+    height: 1.8rem;
+    translate: -50% 0;
+    rotate: 2deg;
+    background: var(--tape);
+    border-inline: 2px dashed rgb(255 255 255 / 0.5);
+  }
+  .stamp {
+    justify-self: start;
+    padding: 0.15rem 0.6rem;
+    border: 2px solid #5b2bb5;
+    border-radius: 3px;
+    color: #5b2bb5;
+    font-family: var(--font-type);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    rotate: -3deg;
+  }
+  .stamp:hover {
+    background: #5b2bb5;
+    color: #fff;
+  }
+  .head-zine h1 {
+    font-family: var(--font-type);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+  .head-zine .description {
+    font-family: var(--font-read);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: #574a3a;
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: 0;
+    font-family: var(--font-hand);
+    font-size: 1.35rem;
+    line-height: 1.2;
+    color: #5b2bb5;
+  }
+
+  .draft {
+    margin: -1.5rem 0 2rem;
+  }
+
+  /* ---------- Lesetext ---------- */
+  /* Initiale (großer erster Buchstabe) bei Geschichten */
+  .dropcap > :global(p:first-of-type)::first-letter {
+    float: left;
+    margin: 0.3rem 0.6rem 0 0;
+    padding: 0.35rem 0.55rem 0.15rem;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    color: #5b2bb5;
+    font-family: var(--font-type);
+    font-size: 3.4em;
+    line-height: 0.9;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .look-terminal .prose > :global(p:first-of-type) {
+    font-size: 1.12em;
+  }
+  .look-terminal .prose :global(h2)::before {
+    content: '## ';
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+  }
+  .look-zine .prose :global(h2) {
+    font-family: var(--font-type);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .end {
+    margin: 3rem 0 0;
+    text-align: center;
+    color: var(--accent);
+  }
+  .look-terminal .end {
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+  .look-zine .end {
+    font-family: var(--font-hand);
+    font-size: 1.8rem;
+  }
+
   .tags {
-    margin-top: 3rem;
+    margin-top: 2.5rem;
   }
   .pager {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-    gap: 1rem;
+    gap: 1.25rem;
     margin-top: 3rem;
     padding-top: 2rem;
-    border-top: 1px solid var(--border);
+    border-top: 2px dashed var(--border);
   }
   .pager-link {
     display: grid;
     gap: 0.25rem;
     padding: 1.1rem 1.25rem;
+    border: 2px solid var(--ink);
     border-radius: var(--radius);
     background: var(--surface);
-    border: 1px solid var(--border);
+    box-shadow: var(--hard);
     text-decoration: none;
     color: var(--text);
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   .pager-link:hover {
     color: var(--text);
-    border-color: var(--accent);
-    transform: translateY(-2px);
+    transform: translate(-3px, -3px);
+    box-shadow: var(--hard-lg);
   }
   .pager-link span {
-    font-size: 0.85rem;
-    font-weight: 800;
+    font-family: var(--font-pixel);
+    font-size: 0.75rem;
     color: var(--accent);
   }
   .next {

@@ -29,13 +29,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
-    <meta name="theme-color" content="#7c4dd8" />
+    <meta name="theme-color" content="#5b2bb5" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=JetBrains+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Silkscreen&family=Space+Grotesk:wght@400;500;700&family=Special+Elite&display=swap"
     />
 
     <!-- Hell/Dunkel sofort setzen, damit die Seite beim Laden nicht flackert -->
@@ -47,6 +47,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         document.documentElement.dataset.theme = theme;
+        document.documentElement.classList.add('js');
       })();
     </script>
   </head>
@@ -60,6 +61,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </body>
 </html>
 
+<script>
+  // Lässt Elemente mit der Klasse "reveal" beim Scrollen hereingleiten.
+  const items = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: '0px 0px -8% 0px' },
+    );
+    items.forEach((el) => observer.observe(el));
+  } else {
+    items.forEach((el) => el.classList.add('is-visible'));
+  }
+</script>
+
 <style>
   .skip-link {
     position: absolute;
@@ -67,10 +89,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     top: -4rem;
     z-index: 100;
     padding: 0.6rem 1rem;
-    border-radius: 999px;
-    background: var(--accent);
-    color: var(--accent-contrast);
-    font-weight: 800;
+    border: 2px solid var(--ink);
+    background: var(--pop);
+    color: var(--pop-text);
+    font-weight: 700;
   }
   .skip-link:focus {
     top: 1rem;

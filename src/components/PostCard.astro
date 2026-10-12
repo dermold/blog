@@ -8,63 +8,77 @@ interface Props {
 
 const { post } = Astro.props;
 const category = CATEGORIES[post.data.category];
+const categoryUrl = url(`kategorien/${post.data.category}/`);
+const postUrl = url(`blog/${post.id}/`);
+const minutes = readingTime(post.body);
+const isoDate = post.data.date.toISOString().slice(0, 10);
 ---
 
-<article class="card">
-  <div class="meta">
-    <a class="chip" href={url(`kategorien/${post.data.category}/`)}>
-      <span aria-hidden="true">{category.emoji}</span>
-      {category.name}
-    </a>
-    <span class="reading">{readingTime(post.body)} Min. Lesezeit</span>
-  </div>
-  <h3>
-    <a href={url(`blog/${post.id}/`)}>{post.data.title}</a>
-  </h3>
-  <p class="description">{post.data.description}</p>
-  <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-</article>
+{
+  category.look === 'terminal' ? (
+    <article class="card terminal">
+      <div class="bar">
+        <span class="dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span class="path">
+          ~/<a href={categoryUrl}>{category.folder}</a>/{post.id}.md
+        </span>
+      </div>
+      <div class="body">
+        <p class="cmd" aria-hidden="true">
+          <span class="prompt">$</span> cat {post.id}.md
+        </p>
+        <h3>
+          <a href={postUrl}>{post.data.title}</a>
+        </h3>
+        <p class="description">{post.data.description}</p>
+        <p class="log">
+          <time datetime={post.data.date.toISOString()}>[{isoDate}]</time> {minutes} min lesen
+          <span class="cursor" aria-hidden="true" />
+        </p>
+      </div>
+    </article>
+  ) : (
+    <article class="card zine">
+      <span class="tape" aria-hidden="true" />
+      <a class="stamp" href={categoryUrl}>
+        <span aria-hidden="true">{category.emoji}</span> {category.name}
+      </a>
+      <h3>
+        <a href={postUrl}>{post.data.title}</a>
+      </h3>
+      <p class="description">{post.data.description}</p>
+      <p class="foot">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+        <span>~ {minutes} Min. ~</span>
+      </p>
+    </article>
+  )
+}
 
 <style>
   .card {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
     height: 100%;
-    padding: 1.5rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    border: 2px solid var(--ink);
     border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-shadow: var(--hard);
+    transition: transform 0.18s cubic-bezier(0.3, 1.4, 0.5, 1), box-shadow 0.18s ease;
   }
   .card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-hover);
-    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-  }
-  .meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-  .meta .chip {
-    position: relative;
-    z-index: 2;
-  }
-  .reading {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    transform: translate(-4px, -4px);
+    box-shadow: var(--hard-lg);
   }
   h3 {
     margin: 0;
-    font-size: 1.3rem;
   }
   h3 a {
-    color: var(--text);
+    color: inherit;
     text-decoration: none;
   }
   /* Die ganze Karte ist anklickbar */
@@ -72,19 +86,177 @@ const category = CATEGORIES[post.data.category];
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: var(--radius);
-  }
-  .card:hover h3 a {
-    color: var(--accent);
+    z-index: 1;
   }
   .description {
     margin: 0;
-    color: var(--text-muted);
     flex: 1;
   }
-  time {
-    font-size: 0.875rem;
+
+  /* ---------- Terminal (Persönliches) ---------- */
+  .terminal {
+    overflow: hidden;
+    background: var(--term-bg);
+    color: var(--term-text);
+    font-family: var(--font-mono);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    background: var(--term-bar);
+    border-bottom: 2px solid var(--ink);
+    font-size: 0.78rem;
+    color: var(--term-dim);
+  }
+  .dots {
+    display: flex;
+    gap: 0.35rem;
+  }
+  .dots i {
+    width: 0.7rem;
+    height: 0.7rem;
+    border: 1.5px solid #000;
+    border-radius: 50%;
+    background: #ff6b8b;
+  }
+  .dots i:nth-child(2) {
+    background: var(--pop);
+  }
+  .dots i:nth-child(3) {
+    background: #8f6cff;
+  }
+  .path {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .path a {
+    position: relative;
+    z-index: 2;
+    color: var(--term-text);
+  }
+  .path a:hover {
+    color: var(--term-prompt);
+  }
+  .terminal .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.6rem;
+    padding: 1.1rem 1.2rem 1.2rem;
+  }
+  .cmd {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--term-dim);
+  }
+  .prompt {
+    color: var(--term-prompt);
     font-weight: 700;
-    color: var(--text-muted);
+  }
+  .terminal h3 {
+    font-family: var(--font-ui);
+    font-size: 1.35rem;
+    color: #fff;
+  }
+  .terminal:hover h3 {
+    color: var(--term-prompt);
+  }
+  .terminal .description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--term-text);
+    opacity: 0.85;
+  }
+  .log {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--term-dim);
+  }
+  .log time {
+    color: var(--term-prompt);
+  }
+  .log .cursor {
+    color: var(--term-text);
+  }
+
+  /* ---------- Zine (Geschichten) ---------- */
+  .zine {
+    gap: 0.8rem;
+    padding: 2rem 1.5rem 1.4rem;
+    color: var(--paper-ink);
+    background-color: var(--paper);
+    /* liniertes Papier */
+    background-image: repeating-linear-gradient(transparent 0 1.7rem, var(--paper-line) 1.7rem calc(1.7rem + 1px));
+    background-position: 0 0.9rem;
+    rotate: -0.8deg;
+  }
+  :global(li:nth-child(even)) > .zine {
+    rotate: 0.9deg;
+  }
+  .zine:hover {
+    rotate: 0deg;
+  }
+  .tape {
+    position: absolute;
+    top: -0.85rem;
+    left: 50%;
+    width: 6.5rem;
+    height: 1.6rem;
+    translate: -50% 0;
+    rotate: -3deg;
+    background: var(--tape);
+    border-left: 2px dashed rgb(255 255 255 / 0.5);
+    border-right: 2px dashed rgb(255 255 255 / 0.5);
+  }
+  .stamp {
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    padding: 0.15rem 0.55rem;
+    border: 2px solid var(--accent);
+    border-radius: 3px;
+    color: #5b2bb5;
+    border-color: #5b2bb5;
+    font-family: var(--font-type);
+    font-size: 0.8rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    rotate: -3deg;
+  }
+  .stamp:hover {
+    background: #5b2bb5;
+    color: #fff;
+  }
+  .zine h3 {
+    font-family: var(--font-type);
+    font-weight: 400;
+    font-size: 1.45rem;
+    line-height: 1.25;
+    letter-spacing: 0;
+  }
+  .zine:hover h3 a {
+    text-decoration: underline wavy #5b2bb5 2px;
+    text-underline-offset: 5px;
+  }
+  .zine .description {
+    font-family: var(--font-read);
+    font-style: italic;
+    line-height: 1.7;
+    color: #574a3a;
+  }
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0;
+    font-family: var(--font-hand);
+    font-size: 1.25rem;
+    line-height: 1.2;
+    color: #5b2bb5;
   }
 </style>

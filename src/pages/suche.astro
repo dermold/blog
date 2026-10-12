@@ -119,29 +119,32 @@ import { url } from '../lib/utils';
     transform: translateY(-50%);
     fill: none;
     stroke: var(--text-muted);
-    stroke-width: 2.2;
-    stroke-linecap: round;
+    stroke-width: 2.4;
+    stroke-linecap: square;
     pointer-events: none;
+    z-index: 1;
   }
   input {
     width: 100%;
     padding: 1rem 1.25rem 1rem 3.2rem;
-    border-radius: 999px;
-    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    border: 2px solid var(--ink);
     background: var(--surface);
     color: var(--text);
-    font: inherit;
-    font-size: 1.1rem;
-    box-shadow: var(--shadow);
-    transition: border-color 0.15s ease;
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    box-shadow: var(--hard);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
   }
   input:focus {
     outline: none;
-    border-color: var(--accent);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--hard-lg);
   }
   .status {
     color: var(--text-muted);
-    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
     margin: 1.25rem 0;
   }
   .results {
@@ -157,19 +160,21 @@ import { url } from '../lib/utils';
     padding: 1.1rem 1.25rem;
     border-radius: var(--radius);
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 2px solid var(--ink);
+    box-shadow: var(--hard);
     color: var(--text);
     text-decoration: none;
-    transition: border-color 0.15s ease, transform 0.15s ease;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
   }
   .results :global(a:hover) {
-    border-color: var(--accent);
-    transform: translateX(4px);
+    transform: translate(-3px, -3px);
+    box-shadow: var(--hard-lg);
     color: var(--text);
   }
   .results :global(.r-meta) {
-    font-size: 0.85rem;
-    font-weight: 800;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
     color: var(--accent);
   }
   .results :global(strong) {

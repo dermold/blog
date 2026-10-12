@@ -4,16 +4,23 @@ export const SITE_DESCRIPTION = 'Persönliche Gedanken und Geschichten von Sebas
 export const AUTHOR = 'Sebastian';
 
 // Kategorien: Der Schlüssel (links) wird im Beitrag unter "category" eingetragen.
+// "look" bestimmt das Aussehen der Beiträge dieser Kategorie:
+//   'terminal' = wie ein Terminal-Log, 'zine' = wie ein selbstgemachtes Heft.
+// "folder" ist der Ordnername, der im Terminal-Look angezeigt wird.
 export const CATEGORIES = {
   persoenliches: {
     name: 'Persönliches',
     description: 'Gedanken, Erlebnisse und Dinge, die mich bewegen.',
     emoji: '🌿',
+    look: 'terminal',
+    folder: 'leben',
   },
   geschichten: {
     name: 'Geschichten',
     description: 'Erzählungen, Kurzgeschichten und alles Ausgedachte.',
     emoji: '📖',
+    look: 'zine',
+    folder: 'geschichten',
   },
 } as const;
 

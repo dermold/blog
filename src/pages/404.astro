@@ -6,8 +6,10 @@ import { url } from '../lib/utils';
 <BaseLayout title="Seite nicht gefunden">
   <div class="container narrow box">
     <p class="big" aria-hidden="true">404</p>
+    <p class="sticker over" aria-hidden="true">Game Over</p>
     <h1>Hier ist leider nichts.</h1>
     <p>Diese Seite gibt es nicht (mehr). Vielleicht findest du über die Suche, was du suchst.</p>
+    <p class="continue" aria-hidden="true">Continue?</p>
     <p class="actions">
       <a class="button" href={url('')}>Zur Startseite</a>
       <a class="button ghost" href={url('suche/')}>Zur Suche</a>
@@ -22,17 +24,27 @@ import { url } from '../lib/utils';
   }
   .big {
     margin: 0;
-    font-size: clamp(5rem, 20vw, 9rem);
-    font-weight: 900;
+    font-family: var(--font-pixel);
+    font-size: clamp(5rem, 22vw, 10rem);
     line-height: 1;
     color: var(--accent);
-    transform: rotate(-4deg);
+    text-shadow: 6px 6px 0 var(--ink);
+  }
+  .over {
+    margin: 1rem 0 0;
+    font-size: 1rem;
+  }
+  .continue {
+    margin: 2.5rem 0 0;
+    font-family: var(--font-pixel);
+    color: var(--accent);
+    animation: blink 1.2s steps(2) infinite;
   }
   .actions {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
   }
 </style>
