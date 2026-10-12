@@ -74,9 +74,26 @@ const isActive = (href: string) => {
     position: sticky;
     top: 0;
     z-index: 50;
-    background: color-mix(in srgb, var(--bg) 55%, transparent);
-    border-bottom: 2px solid var(--ink);
-    box-shadow: inset 0 -1px 0 var(--glass-hi);
+    /* Dunkles Rauchglas wie die Terminal- und Portal-Karten, in Hell und Dunkel gleich.
+       Die Farbwerte gelten für alles in der Kopfzeile (Logo, Menü, Knöpfe). */
+    --text: #ede6fa;
+    --text-muted: #b9add3;
+    --surface: rgb(255 255 255 / 0.08);
+    --ink: rgb(199 178 255 / 0.55);
+    --accent: #7c4dd8;
+    --accent-contrast: #ffffff;
+    --glass-hi: rgb(255 255 255 / 0.14);
+    color: var(--text);
+    background:
+      radial-gradient(30rem 6rem at 85% 0%, rgb(143 108 255 / 0.3), transparent 70%),
+      rgb(16 9 28 / 0.94);
+    border-bottom: 2px solid #0b0613;
+    box-shadow:
+      inset 0 -1px 0 var(--glass-hi),
+      0 6px 24px rgb(20 11 34 / 0.25);
+  }
+  .logo-suffix {
+    color: #c7b2ff;
   }
   .inner {
     display: flex;
@@ -126,7 +143,6 @@ const isActive = (href: string) => {
     font-family: var(--font-mono);
     font-weight: 400;
     font-size: 0.9em;
-    color: var(--accent);
   }
   .nav ul {
     display: flex;
